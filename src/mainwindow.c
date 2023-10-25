@@ -5312,7 +5312,9 @@ static gboolean mainwindow_state_event_cb(GtkWidget *widget, GdkEventWindowState
 		if (iconified_count > 0)
 			hooks_invoke(MAIN_WINDOW_GOT_ICONIFIED, NULL);
 		iconified_count++;
-	} else if (!claws_is_starting()) {
+	} else if (!claws_is_starting()
+		&& (state->new_window_state&GDK_WINDOW_STATE_WITHDRAWN) == 0) {
+
 		prefs_common.mainwin_maximised = 
 			((state->new_window_state&GDK_WINDOW_STATE_MAXIMIZED) != 0);
 	}
