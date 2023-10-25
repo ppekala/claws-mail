@@ -4882,8 +4882,10 @@ gtk_cmclist_style_set (GtkWidget *widget,
       style = gtk_widget_get_style (widget);
       gtk_style_set_background (style, gtk_widget_get_window (widget),
 				gtk_widget_get_state(widget));
-      gtk_style_set_background (style, clist->title_window, GTK_STATE_NORMAL);
-      gdk_window_set_background (clist->clist_window, &style->base[GTK_STATE_NORMAL]);
+      if (clist->title_window != NULL)
+        gtk_style_set_background (style, clist->title_window, GTK_STATE_NORMAL);
+      if (clist->clist_window != NULL)
+        gdk_window_set_background (clist->clist_window, &style->base[GTK_STATE_NORMAL]);
     }
 
   /* Fill in data after widget has correct style */
