@@ -3588,9 +3588,6 @@ void main_window_popup(MainWindow *mainwin)
 	if (!gtk_widget_get_visible(GTK_WIDGET(mainwin->window)))
 		main_window_show(mainwin);
 
-	if (prefs_common.mainwin_maximised)
-		gtk_window_maximize(GTK_WINDOW(mainwin->window));
-
 	if (first_start) {
 		first_start = FALSE;
 	} else {
@@ -3611,6 +3608,10 @@ void main_window_show(MainWindow *mainwin)
 {
 	gtk_widget_show(mainwin->window);
 	gtk_widget_show(mainwin->vbox_body);
+
+	if (prefs_common.mainwin_maximised)
+		gtk_window_maximize(GTK_WINDOW(mainwin->window));
+
 #ifndef GENERIC_UMPC
         gtk_window_move(GTK_WINDOW(mainwin->window),
                                  prefs_common.mainwin_x,
@@ -5313,6 +5314,7 @@ static gboolean mainwindow_state_event_cb(GtkWidget *widget, GdkEventWindowState
 			hooks_invoke(MAIN_WINDOW_GOT_ICONIFIED, NULL);
 		iconified_count++;
 	} else if (!claws_is_starting()
+		&& (state->changed_mask&GDK_WINDOW_STATE_WITHDRAWN) == 0
 		&& (state->new_window_state&GDK_WINDOW_STATE_WITHDRAWN) == 0) {
 
 		prefs_common.mainwin_maximised = 
