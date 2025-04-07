@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2006-2023 the Claws Mail Team and Andrej Kacian <andrej@kacian.sk>
+ * Copyright (C) 2006-2025 the Claws Mail Team and Andrej Kacian <andrej@kacian.sk>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,6 +59,9 @@ struct _Feed {
 	gchar *cookies_path;
 	gboolean ssl_verify_peer;
 	gchar *cacert_file;
+	gchar *last_modified;
+	gchar *etag;
+	time_t retry_after;
 
 	GSList *items;
 };
@@ -129,7 +132,13 @@ gboolean feed_prepend_item(Feed *feed, FeedItem *item);
 gboolean feed_append_item(Feed *feed, FeedItem *item);
 gboolean feed_insert_item(Feed *feed, FeedItem *item, gint pos);
 
-guint feed_update(Feed *feed, time_t last_update);
+gchar *feed_get_etag(Feed *feed);
+void feed_set_etag(Feed *feed, gchar *etag);
+
+gchar *feed_get_last_modified(Feed *feed);
+void feed_set_last_modified(Feed *feed, gchar *last_modified);
+
+guint feed_update(Feed *feed, const gchar *user_agent);
 
 #define FILL(n)		do { g_free(n); n = g_strdup(text); } while(0);
 

@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2006-2023 the Claws Mail Team and Andrej Kacian <andrej@kacian.sk>
+ * Copyright (C) 2006-2025 the Claws Mail Team and Andrej Kacian <andrej@kacian.sk>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,10 @@
 #include <glib.h>
 #include <curl/curl.h>
 #include <expat.h>
+#include <procheader.h>
 
 #include "feed.h"
+#include "../rssyl_prefs.h"
 #include "parser.h"
 
 /* feed_new()
@@ -50,6 +52,9 @@ Feed *feed_new(gchar *url)
 
 	feed->fetcherr = NULL;
 	feed->cookies_path = NULL;
+	feed->last_modified = NULL;
+	feed->etag = NULL;
+	feed->retry_after = 0;
 
 	feed->ssl_verify_peer = TRUE;
 	feed->cacert_file = NULL;
@@ -68,13 +73,13 @@ static void _free_auth(Feed *feed)
 		return;
 
 	if (feed->auth != NULL) {
-                if (feed->auth->username != NULL)
-                        g_free(feed->auth->username);
-                if (feed->auth->password != NULL)
-                        g_free(feed->auth->password);
-                g_free(feed->auth);
+		if (feed->auth->username != NULL)
+			g_free(feed->auth->username);
+		if (feed->auth->password != NULL)
+			g_free(feed->auth->password);
+		g_free(feed->auth);
 		feed->auth = NULL;
-        }
+	}
 }
 
 void feed_free(Feed *feed)
@@ -93,6 +98,8 @@ void feed_free(Feed *feed)
 	g_free(feed->fetcherr);
 	g_free(feed->cookies_path);
 	g_free(feed->cacert_file);
+	g_free(feed->last_modified);
+	g_free(feed->etag);
 
 	if( feed->items != NULL ) {
 		g_slist_foreach(feed->items, _free_items, NULL);
@@ -105,10 +112,10 @@ void feed_free(Feed *feed)
 
 void feed_free_items(Feed *feed)
 {
-	if( feed == NULL )
+	if (feed == NULL)
 		return;
 
-	if( feed->items != NULL ) {
+	if (feed->items != NULL) {
 		g_slist_foreach(feed->items, _free_items, NULL);
 		g_slist_free(feed->items);
 		feed->items = NULL;
@@ -134,7 +141,7 @@ void feed_set_url(Feed *feed, gchar *url)
 	g_return_if_fail(feed != NULL);
 	g_return_if_fail(url != NULL);
 
-	if( feed->url != NULL ) {
+	if (feed->url != NULL) {
 		g_free(feed->url);
 		feed->url = NULL;
 	}
@@ -227,7 +234,7 @@ gint feed_n_items(Feed *feed)
 {
 	g_return_val_if_fail(feed != NULL, -1);
 
-	if( feed->items == NULL )	/* No items here. */
+	if (feed->items == NULL)	/* No items here. */
 		return 0;
 
 	return g_slist_length(feed->items);
@@ -245,7 +252,7 @@ FeedItem *feed_nth_item(Feed *feed, guint n)
  * Takes initialized feed with url set, fetches the feed from this url,
  * updates rest of Feed struct members and returns HTTP response code
  * we got from url's server. */
-guint feed_update(Feed *feed, time_t last_update)
+guint feed_update(Feed *feed, const gchar *user_agent)
 {
 	CURL *eh = NULL;
 	CURLcode res;
@@ -291,16 +298,32 @@ guint feed_update(Feed *feed, time_t last_update)
 	curl_easy_setopt(eh, CURLOPT_TIMEOUT, feed->timeout);
 	curl_easy_setopt(eh, CURLOPT_NOSIGNAL, 1);
 	curl_easy_setopt(eh, CURLOPT_ENCODING, "");
-	curl_easy_setopt(eh, CURLOPT_USERAGENT, "libfeed 0.1");
+	curl_easy_setopt(eh, CURLOPT_USERAGENT, user_agent);
 	curl_easy_setopt(eh, CURLOPT_NETRC, CURL_NETRC_OPTIONAL);
 
-	/* Use HTTP's If-Modified-Since feature, if application provided
-	 * the timestamp of last update. */
-	if( last_update != -1 ) {
-		curl_easy_setopt(eh, CURLOPT_TIMECONDITION,
-				CURL_TIMECOND_IFMODSINCE);
-		curl_easy_setopt(eh, CURLOPT_TIMEVALUE, (long)last_update);
+	/* Send conditional requests using If-Modified-Since: or
+	 * If-None-Match: if the previous value of Last-Modified: or ETag:
+	 * is known, respectively. */
+	struct curl_slist *headers = NULL;
+	if (feed->etag) {
+		/* libcurl asks for a "<header>: <value>" string */
+		gchar *header = g_strdup_printf("If-None-Match: %s",
+						feed->etag);
+		headers = curl_slist_append(headers, header);
+		/* ...and copies it, so free the one we made */
+		g_free(header);
 	}
+	if (feed->last_modified) {
+		gchar *header = g_strdup_printf("If-Modified-Since: %s",
+						feed->last_modified);
+		struct curl_slist *headers_ = curl_slist_append(headers,
+								header);
+		g_free(header);
+		/* Avoid a leak by overwriting a non-NULL pointer with a NULL */
+		if (headers_) headers = headers_;
+	}
+	if (headers)
+		curl_easy_setopt(eh, CURLOPT_HTTPHEADER, headers);
 
 #if LIBCURL_VERSION_NUM >= 0x070a00
 	if (feed->ssl_verify_peer == FALSE) {
@@ -312,7 +335,7 @@ guint feed_update(Feed *feed, time_t last_update)
 	if (feed->cacert_file != NULL)
 		curl_easy_setopt(eh, CURLOPT_CAINFO, feed->cacert_file);
 
-	if(feed->cookies_path != NULL)
+	if (feed->cookies_path != NULL)
 		curl_easy_setopt(eh, CURLOPT_COOKIEFILE, feed->cookies_path);
 
 	if (feed->auth != NULL) {
@@ -335,15 +358,43 @@ guint feed_update(Feed *feed, time_t last_update)
 	res = curl_easy_perform(eh);
 	XML_Parse(feed_ctx->parser, "", 0, TRUE);
 
-	if( res != CURLE_OK ) {
+	if (res != CURLE_OK) {
 		feed->fetcherr = g_strdup(curl_easy_strerror(res));
 		response_code = FEED_ERR_FETCH;
 	} else {
 		curl_easy_getinfo(eh, CURLINFO_RESPONSE_CODE, &response_code);
+		struct curl_header *header;
+		CURLHcode ret = curl_easy_header(eh, "ETag", 0,
+						 CURLH_HEADER, -1,
+						 &header);
+		feed_set_etag(feed, ret == CURLHE_OK ? header->value
+						     : NULL);
+		ret = curl_easy_header(eh, "Last-Modified", 0,
+				       CURLH_HEADER, -1,
+				       &header);
+		feed_set_last_modified(feed,
+				       ret == CURLHE_OK ? header->value
+							: NULL);
+		ret = curl_easy_header(eh, "Retry-After", 0,
+				       CURLH_HEADER, -1,
+				       &header);
+		if (ret == CURLHE_OK && *header->value) {
+			/* Retry-After: either delay >= 0 seconds or HTTP Date */
+			char * end = NULL;
+			unsigned long long seconds = strtoull(header->value, &end, 10);
+			if (!*end && seconds > 0) { /* parse successful */
+				feed->retry_after = time(NULL) + seconds;
+			} else { /* will set to 0 if fails to parse */
+				feed->retry_after = procheader_date_parse(NULL,
+									  header->value,
+									  0);
+			}
+		}
 	}
 
 cleanup:
 	curl_easy_cleanup(eh);
+	curl_slist_free_all(headers);
 
 	/* Cleanup, we should be done. */
 	XML_ParserFree(feed_ctx->parser);
@@ -406,12 +457,48 @@ void feed_set_cookies_path(Feed *feed, gchar *path)
 {
 	g_return_if_fail(feed != NULL);
 
-	if( feed->cookies_path != NULL ) {
+	if (feed->cookies_path != NULL) {
 		g_free(feed->cookies_path);
 		feed->cookies_path = NULL;
 	}
 
 	feed->cookies_path = (path != NULL ? g_strdup(path) : NULL);
+}
+
+gchar *feed_get_last_modified(Feed *feed)
+{
+	g_return_val_if_fail(feed != NULL, NULL);
+	return feed->last_modified;
+}
+
+void feed_set_last_modified(Feed *feed, gchar *value)
+{
+	g_return_if_fail(feed != NULL);
+
+	if (feed->last_modified != NULL) {
+		g_free(feed->last_modified);
+		feed->last_modified = NULL;
+	}
+
+	feed->last_modified = (value != NULL ? g_strdup(value) : NULL);
+}
+
+gchar *feed_get_etag(Feed *feed)
+{
+	g_return_val_if_fail(feed != NULL, NULL);
+	return feed->etag;
+}
+
+void feed_set_etag(Feed *feed, gchar *value)
+{
+	g_return_if_fail(feed != NULL);
+
+	if (feed->etag != NULL) {
+		g_free(feed->etag);
+		feed->etag = NULL;
+	}
+
+	feed->etag = (value != NULL ? g_strdup(value) : NULL);
 }
 
 gboolean feed_get_ssl_verify_peer(Feed *feed)
@@ -436,7 +523,7 @@ void feed_set_cacert_file(Feed *feed, const gchar *path)
 {
 	g_return_if_fail(feed != NULL);
 
-	if( feed->cacert_file != NULL ) {
+	if (feed->cacert_file != NULL) {
 		g_free(feed->cacert_file);
 		feed->cacert_file = NULL;
 	}

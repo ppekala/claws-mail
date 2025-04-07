@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2005-2023 the Claws Mail Team and Andrej Kacian <andrej@kacian.sk>
+ * Copyright (C) 2005-2025 the Claws Mail Team and Andrej Kacian <andrej@kacian.sk>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 
 #include <glib.h>
 
+#include <defs.h>
+#include <common/version.h>
 #include <folder.h>
 #include <passwordstore.h>
 
@@ -30,6 +32,8 @@
 
 /* Name of directory in rcdir where RSSyl will store its data. */
 #define RSSYL_DIR		PLUGIN_NAME
+
+#define RSSYL_DEFAULT_UA	"ClawsMailRSSyl/"VERSION " ("HOMEPAGE_URI")"
 
 /* Folder name for a new feed, before it is parsed for the first time. */
 #define RSSYL_NEW_FOLDER_NAME		"NewFeed"
@@ -66,6 +70,12 @@ struct _RFolderItem {
 	guint refresh_id;
 	gboolean fetching_comments;
 	time_t last_update;
+	gchar *last_modified;
+	gchar *etag;
+	time_t retry_after;
+
+	gboolean use_default_user_agent;
+	gchar *specific_user_agent;
 
 	struct _RFeedProp *feedprop;
 
@@ -88,6 +98,7 @@ struct _RFetchCtx {
 	gchar *error;
 	gboolean success;
 	gboolean ready;
+	RFolderItem *ritem;
 };
 
 typedef struct _RFetchCtx RFetchCtx;

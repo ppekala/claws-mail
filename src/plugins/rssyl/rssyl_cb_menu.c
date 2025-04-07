@@ -78,7 +78,7 @@ void rssyl_new_feed_cb(GtkAction *action,
 		if (uri) {
 			gchar* newstr = g_uri_to_string(uri);
 
-			debug_print("URI: '%s' -> '%s'\n", str, newstr ? newstr : "N/A");
+			debug_print("RSSyl: URI: '%s' -> '%s'\n", str, newstr ? newstr : "N/A");
 			if (newstr)
 				g_free(newstr);
 			g_uri_unref(uri);
@@ -332,7 +332,7 @@ void rssyl_update_all_cb( GtkAction *action, gpointer data)
 		return;
 	}
 
-	rssyl_update_recursively(item);
+	rssyl_update_recursively(item, TRUE);
 }
 
 void rssyl_remove_mailbox_cb(GtkAction *action, gpointer data)
