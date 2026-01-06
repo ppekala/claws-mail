@@ -1658,12 +1658,14 @@ gboolean summary_show(SummaryView *summaryview, FolderItem *item, gboolean avoid
 		}
 
 		summary_unlock(summaryview);
+		summary_thaw(summaryview);
 
 		if (node)
 			summary_select_node(summaryview, node,
 					OPEN_SELECTED_ON_FOLDER_OPEN);
 
 		summary_lock(summaryview);
+		summary_freeze(summaryview);
 	}
 
 	summary_status_show(summaryview);
