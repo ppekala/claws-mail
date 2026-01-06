@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2021 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2025 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -170,7 +170,7 @@ void quotefmt_create_new_msg_fmt_widgets(GtkWindow *parent_window,
 
 	if (checkbtn_compose_with_format)
 		PACK_CHECK_BUTTON (parent_box, checkbtn_use_format, 
-				   _("Use template when composing new messages"));
+				   _("Use template when writing new messages"));
 
 	vbox_format = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
 	gtk_widget_show(vbox_format);
@@ -540,7 +540,7 @@ void quotefmt_add_defaults_button(GtkWindow *parent_window,
 
 	btn_formatdesc = gtk_button_new_with_mnemonic (_("Defaults"));
 	gtk_button_set_image (GTK_BUTTON(btn_formatdesc),
-		gtk_image_new_from_icon_name("edit-undo", GTK_ICON_SIZE_BUTTON));
+		gtk_image_new_from_icon_name("edit-undo-symbolic", GTK_ICON_SIZE_BUTTON));
 	gtk_widget_show (btn_formatdesc);
 	gtk_box_pack_end (GTK_BOX (parent_box), btn_formatdesc, FALSE, FALSE, 0);
 	g_signal_connect(G_OBJECT(btn_formatdesc), "clicked",

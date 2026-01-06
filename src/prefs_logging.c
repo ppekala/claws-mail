@@ -1,7 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2012 Tristan Chabredier <wwp@claws-mail.org> and 
- * the Claws Mail team
+ * Copyright (C) 1999-2025 the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -172,17 +171,17 @@ static void prefs_logging_create_widget(PrefsPage *_page, GtkWindow *window,
 
 	CLAWS_SET_TIP(checkbtn_filtering_log,
 			     _("If checked, turns on logging of filtering and processing rules.\n"
-				"The log is accessible from 'Tools/Filtering log'.\n"
+				"The log is accessible from '/Tools/Filtering log'.\n"
 				"Caution: enabling this option will slow down the filtering/processing, "
 				"this might be critical when applying many rules upon thousands of "
-				"messages."));
+				"messages"));
 
 	vbox2_filtering_log = gtkut_get_options_frame(vbox1_filtering_log, &frame_filtering_log,
 							_("Log filtering/processing when..."));
 
 	hbox_checkbtn = prefs_logging_create_check_buttons(
 						&checkbtn_filtering_log_inc,
-						_("filtering at incorporation"),
+						_("filtering on receiving"),
 						&checkbtn_filtering_log_pre_proc,
 						_("pre-processing folders"));
 	gtk_box_pack_start(GTK_BOX(vbox2_filtering_log), hbox_checkbtn, FALSE, FALSE, 0);
@@ -240,7 +239,7 @@ static void prefs_logging_create_widget(PrefsPage *_page, GtkWindow *window,
 				"rules are processed or skipped, and why all conditions "
 				"are matched or not matched.\n"
 				"Caution: the higher the level, the greater the "
-				"impact on performance."));
+				"impact on performance"));
 
 	hbox_clip_filtering_log = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
 	gtk_container_add (GTK_CONTAINER (vbox1_filtering_log), hbox_clip_filtering_log);

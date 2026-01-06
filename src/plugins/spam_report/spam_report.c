@@ -236,7 +236,7 @@ static void report_spam(gint id, ReportInterface *intf, MsgInfo *msginfo, gchar 
 			curl_easy_setopt(curl, CURLOPT_URL, intf->url);
 			curl_easy_setopt(curl, CURLOPT_POSTFIELDS, reqbody);
 			curl_easy_setopt(curl, CURLOPT_USERPWD, auth);
-			curl_easy_setopt(curl, CURLOPT_TIMEOUT, prefs_common_get_prefs()->io_timeout_secs);
+			curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)(prefs_common_get_prefs()->io_timeout_secs));
 			curl_easy_setopt(curl, CURLOPT_USERAGENT,
                 		SPAM_REPORT_USERAGENT "(" PLUGINS_URI ")");
 #ifdef G_OS_WIN32
@@ -398,7 +398,7 @@ const gchar *plugin_name(void)
 
 const gchar *plugin_desc(void)
 {
-	return _("This plugin reports spam to various places.\n"
+	return _("This plugin reports spam to various places.\n\n"
 		 "Currently the following sites or methods are supported:\n\n"
 		 " * spam-signal.fr\n"
                  " * spamcop.net\n"

@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2024 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2025 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,7 @@
 #define COMMON_RC		"clawsrc"
 #define OLD_COMMON_RC		"sylpheedrc"
 #define ACCOUNT_RC		"accountrc"
+#define OAUTH2_RC		"oauth2rc"
 #define CUSTOM_HEADER_RC	"customheaderrc"
 #define DISPLAY_HEADER_RC	"dispheaderrc"
 #define FOLDERITEM_RC           "folderitemrc"
@@ -80,13 +81,13 @@
 #define FAQ_URI			"https://www.claws-mail.org/faq/index.php"
 #define PLUGINS_URI		"https://www.claws-mail.org/plugins.php"
 #define DICTS_URI		"https://www.claws-mail.org/win32/dictionaries.php"
-#define BUGZILLA_URI		"https://www.thewildbeast.co.uk/claws-mail/bugzilla/enter_bug.cgi"
+#define BUGZILLA_URI		"https://www.claws-mail.org/bugzilla/enter_bug.cgi"
 #define THEMES_URI		"https://www.claws-mail.org/themes.php"
 #define TOOLS_URI		"https://www.claws-mail.org/tools.php"
 #define MAILING_LIST_URI	"https://www.claws-mail.org/MLs.php"
 #define WELCOME_MSG_ADDR	"noreply@claws-mail.org"
 #define USERS_ML_URI		"https://lists.claws-mail.org/cgi-bin/mailman/listinfo/users"
-#define GPL_URI			"https://www.gnu.org/licenses/gpl.html"
+#define GPL_URI			"https://www.gnu.org/licenses/gpl-3.0.html"
 #define DONATE_URI		"https://www.claws-mail.org/donations.php"
 #define CONFIG_VERSIONS_URI	"https://www.claws-mail.org/cvc.php"
 #define RELEASE_NOTES_FILE	"RELEASE_NOTES"
@@ -146,6 +147,7 @@
 #define SESSION_TIMEOUT_INTERVAL	60	/* sec */
 #define MAX_HISTORY_SIZE		32
 #define HSPACING_NARROW			4
+#define HSPACING_NARROW_2		2
 #define VSPACING			10
 #define VSPACING_NARROW			4
 #define VSPACING_NARROW_2		2

@@ -1,7 +1,7 @@
 /* gtkaspell - a spell-checking addon for GtkText
  * Copyright (c) 2000 Evan Martin (original code for ispell).
  * Copyright (c) 2002 Melvin Hadasht.
- * Copyright (C) 2001-2021 the Claws Mail Team
+ * Copyright (C) 2001-2025 the Claws Mail Team
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -111,7 +111,7 @@ static void button_press_intercept_cb(GtkTextView *gtktext,
 /* Checker creation */
 static GtkAspeller* gtkaspeller_new		(Dictionary	*dict);
 static GtkAspeller* gtkaspeller_real_new	(Dictionary	*dict);
-static GtkAspeller* gtkaspeller_delete		(GtkAspeller	*gtkaspeller);
+static void gtkaspeller_delete		(GtkAspeller	*gtkaspeller);
 static GtkAspeller* gtkaspeller_real_delete	(GtkAspeller	*gtkaspeller);
 
 /* Checker configuration */
@@ -715,9 +715,9 @@ static GtkAspeller *gtkaspeller_real_new(Dictionary *dict)
 	return gtkaspeller;
 }
 
-static GtkAspeller *gtkaspeller_delete(GtkAspeller *gtkaspeller)
+static void gtkaspeller_delete(GtkAspeller *gtkaspeller)
 {
-	cm_return_val_if_fail(gtkaspellcheckers, NULL);
+	cm_return_if_fail(gtkaspellcheckers);
 	
 	gtkaspellcheckers->checkers = 
 		g_slist_remove(gtkaspellcheckers->checkers, 
@@ -730,8 +730,6 @@ static GtkAspeller *gtkaspeller_delete(GtkAspeller *gtkaspeller)
 
 	debug_print("Aspell: number of existing checkers %d\n", 
 			g_slist_length(gtkaspellcheckers->checkers));
-
-	return gtkaspeller;
 }
 
 static GtkAspeller *gtkaspeller_real_delete(GtkAspeller *gtkaspeller)
@@ -1453,7 +1451,7 @@ static void replace_with_create_dialog_cb(GtkWidget *w, gpointer data)
 	thelabel = g_strdup_printf(format, utf8buf);
 	g_free(format);
 	
-	icon = gtk_image_new_from_icon_name("dialog-question",
+	icon = gtk_image_new_from_icon_name("dialog-question-symbolic",
 					GTK_ICON_SIZE_DIALOG);
 	gtk_widget_set_halign(icon, GTK_ALIGN_CENTER);
 	gtk_widget_set_valign(icon, GTK_ALIGN_START);

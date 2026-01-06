@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2024 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2025 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -100,6 +100,7 @@ static void partial_recv_unmark_clicked (NoticeView	*noticeview,
                                          MsgInfo        *msginfo);
 static void save_as_cb			(GtkAction	*action,
 					 gpointer	 data);
+void messageview_save_as		(MessageView *messageview);
 static void page_setup_cb		(GtkAction	*action,
 					 gpointer	 data);
 static void print_cb			(GtkAction	*action,
@@ -185,8 +186,6 @@ static void open_urls_cb		(GtkAction	*action,
 
 static void about_cb			(GtkAction	*action,
 					 gpointer	 data);
-static void messageview_update		(MessageView	*msgview,
-					 MsgInfo	*old_msginfo);
 static gboolean messageview_update_msg	(gpointer source, gpointer data);
 
 static void save_part_as_cb(GtkAction *action, gpointer data);
@@ -298,7 +297,7 @@ static GtkActionEntry msgview_entries[] =
 	{"View/Quotes",                              NULL, N_("Quotes"), NULL, NULL, NULL }, 
 
 /* Message menu */
-	{"Message/Compose",                          NULL, N_("Compose _new message"), "<control>M", NULL, G_CALLBACK(compose_cb) },
+	{"Message/Compose",                          NULL, N_("Write _new message"), "<control>M", NULL, G_CALLBACK(compose_cb) },
 	{"Message/---",                              NULL, "---", NULL, NULL, NULL },
 
 	{"Message/Reply",                            NULL, N_("_Reply"), "<control>R", NULL, G_CALLBACK(reply_cb) }, /* COMPOSE_REPLY */
@@ -1444,6 +1443,8 @@ gint messageview_show(MessageView *messageview, MsgInfo *msginfo,
 	}
 	mimeview_show_message(messageview->mimeview, mimeinfo, file);
 	
+	summary_open_msg(messageview->mainwin->summaryview, FALSE, TRUE);
+	
 #ifndef GENERIC_UMPC
 	messageview_set_position(messageview, 0);
 #endif
@@ -1538,7 +1539,9 @@ gint messageview_show(MessageView *messageview, MsgInfo *msginfo,
 			if (!mimeview_show_part(messageview->mimeview, mimeinfo))
 				mimeview_select_mimepart_icon(messageview->mimeview, root);
 			goto done;
-		} else if (prefs_common.invoke_plugin_on_html) {
+		} else if ((msginfo->folder->prefs->invoke_plugin_on_html == INVOKE_PLUGIN_ON_HTML_ALWAYS ||
+			     (msginfo->folder->prefs->invoke_plugin_on_html == INVOKE_PLUGIN_ON_HTML_DEFAULT &&
+			      prefs_common.invoke_plugin_on_html))) {
 			mimeview_select_mimepart_icon(messageview->mimeview, mimeinfo);
 			goto done;
 		}
@@ -1714,7 +1717,7 @@ void messageview_delete(MessageView *msgview)
  *        leave unchanged if summaryview is empty
  * \param pointer to MessageView
  */	
-static void messageview_update(MessageView *msgview, MsgInfo *old_msginfo)
+void messageview_update(MessageView *msgview, MsgInfo *old_msginfo)
 {
 	SummaryView *summaryview = (SummaryView*)msgview->mainwin->summaryview;
 
@@ -2170,8 +2173,80 @@ gchar *messageview_get_selection(MessageView *msgview)
 
 static void save_as_cb(GtkAction *action, gpointer data)
 {
-	MessageView *messageview = (MessageView *)data;
-	summary_save_as(messageview->mainwin->summaryview);
+	messageview_save_as((MessageView *)data);
+}
+
+void messageview_save_as(MessageView *messageview)
+{
+	gchar *filename = NULL;
+	gchar *src, *dest;
+	gchar *tmp;
+	gchar *filedir = NULL;
+	gchar *converted_filename = NULL;
+	gchar * filepath = NULL;
+	AlertValue aval = 0;
+
+	if (!messageview->msginfo) return;
+	
+	if (messageview->msginfo->subject) {
+		Xstrdup_a(filename, messageview->msginfo->subject, return);
+		subst_for_filename(filename);
+	}
+
+	if (filename && !g_utf8_validate(filename, -1, NULL)) {
+		converted_filename = conv_codeset_strdup(filename,
+					       conv_get_locale_charset_str(),
+					       CS_UTF_8);
+		if (!converted_filename)
+			g_warning("messageview_save_as(): failed to convert character set");
+		else
+			filename = converted_filename;
+	}
+	if (!filename)
+		return;
+
+	if (prefs_common.attach_save_dir && *prefs_common.attach_save_dir) 
+		filepath = g_strconcat(prefs_common.attach_save_dir, G_DIR_SEPARATOR_S,
+				       filename, NULL);
+	dest = filesel_select_file_save(_("Save as"), filepath ? filepath : filename);
+	if (filepath)
+		g_free(filepath);
+	if (converted_filename)
+		g_free(converted_filename);
+	if (!dest)
+		return;
+
+	if (is_file_exist(dest)) {
+		aval = alertpanel(_("Append or Overwrite"),
+				  _("Append or overwrite existing file?"),
+				  NULL, _("_Append"), NULL, _("_Overwrite"),
+				  NULL, _("_Cancel"), ALERTFOCUS_FIRST);
+		if (aval != 0 && aval != 1)
+			return;
+	}
+
+	src = procmsg_get_message_file(messageview->msginfo);
+	tmp = g_path_get_basename(dest);
+
+	if (aval == 0) {
+		if (append_file(src, dest, TRUE) < 0) 
+			alertpanel_error(_("Couldn't save the file '%s'."), tmp);
+	} else {
+		if (copy_file(src, dest, TRUE) < 0)
+			alertpanel_error(_("Couldn't save the file '%s'."), tmp);
+	}
+	g_free(src);
+
+	filedir = g_path_get_dirname(dest);
+	if (filedir) {
+		if (strcmp(filedir, ".")) {
+			g_free(prefs_common.attach_save_dir);
+			prefs_common.attach_save_dir = g_filename_to_utf8(filedir, -1, NULL, NULL, NULL);
+		}
+		g_free(filedir);
+	}
+	g_free(dest);
+	g_free(tmp);
 }
 
 static void print_mimeview(MimeView *mimeview, gint sel_start, gint sel_end, gint partnum) 

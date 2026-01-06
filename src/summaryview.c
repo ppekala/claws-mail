@@ -170,7 +170,8 @@ static void summary_display_msg		(SummaryView		*summaryview,
 static void summary_display_msg_full	(SummaryView		*summaryview,
 					 GtkCMCTreeNode		*row,
 					 gboolean		 new_window,
-					 gboolean		 all_headers);
+					 gboolean		 all_headers,
+					 gboolean		 from_sep_msgview);
 static void summary_set_row_marks	(SummaryView		*summaryview,
 					 GtkCMCTreeNode		*row);
 
@@ -432,7 +433,7 @@ static GtkActionEntry summary_popup_entries[] =
 
 	{"SummaryViewPopup/Forward",              NULL, N_("_Forward"), NULL, NULL, G_CALLBACK(summary_reply_cb) }, /* COMPOSE_FORWARD_INLINE */
 	{"SummaryViewPopup/ForwardAtt",           NULL, N_("For_ward as attachment"), NULL, NULL, G_CALLBACK(summary_reply_cb) }, /* COMPOSE_FORWARD_AS_ATTACH */
-	{"SummaryViewPopup/Redirect",             NULL, N_("Redirec_t"), NULL, NULL, G_CALLBACK(summary_reply_cb) }, /* COMPOSE_REDIRECT */
+	{"SummaryViewPopup/Redirect",             NULL, N_("R_edirect"), NULL, NULL, G_CALLBACK(summary_reply_cb) }, /* COMPOSE_REDIRECT */
 	{"SummaryViewPopup/Marks",                NULL, N_("_Marks"), NULL, NULL, NULL },
 	{"SummaryViewPopup/ColorLabel",           NULL, N_("Color la_bel"), NULL, NULL, NULL },
 	{"SummaryViewPopup/Tags",                 NULL, N_("Ta_gs"), NULL, NULL, NULL },
@@ -594,7 +595,7 @@ SummaryView *summary_create(MainWindow *mainwin)
 
 	CLAWS_SET_TIP(toggle_search, _("Toggle quick search bar"));
 	
-	gtk_box_pack_start(GTK_BOX(hbox), toggle_search, FALSE, FALSE, 2);	
+	gtk_box_pack_start(GTK_BOX(hbox), toggle_search, FALSE, FALSE, HSPACING_NARROW_2);	
 
 	gtk_box_pack_start(GTK_BOX(hbox), stat_vbox, TRUE, TRUE, 0);	
 	gtk_box_pack_start(GTK_BOX(stat_vbox), stat_box, TRUE, TRUE, 0);	
@@ -606,7 +607,7 @@ SummaryView *summary_create(MainWindow *mainwin)
  
 	statlabel_folder = gtk_label_new("");
 	gtk_widget_show(statlabel_folder);
-	gtk_box_pack_start(GTK_BOX(hbox_l), statlabel_folder, FALSE, FALSE, 2);
+	gtk_box_pack_start(GTK_BOX(hbox_l), statlabel_folder, FALSE, FALSE, HSPACING_NARROW_2);
 	statlabel_select = gtk_label_new("");
 	gtk_widget_show(statlabel_select);
 	gtk_box_pack_start(GTK_BOX(hbox_l), statlabel_select, FALSE, FALSE, 12);
@@ -615,7 +616,7 @@ SummaryView *summary_create(MainWindow *mainwin)
 	toggle_eventbox = gtk_event_box_new();
 	gtk_widget_show(toggle_eventbox);
 	
-	gtk_box_pack_end(GTK_BOX(hbox), toggle_eventbox, FALSE, FALSE, 4);
+	gtk_box_pack_end(GTK_BOX(hbox), toggle_eventbox, FALSE, FALSE, HSPACING_NARROW);
 
 	toggle_arrow = gtk_image_new_from_icon_name("pan-down-symbolic", GTK_ICON_SIZE_MENU);
 	gtk_widget_show(toggle_arrow);
@@ -627,7 +628,7 @@ SummaryView *summary_create(MainWindow *mainwin)
 #ifdef GENERIC_UMPC
 	multiple_sel_togbtn = gtk_toggle_button_new();
 	gtk_widget_show(multiple_sel_togbtn);
-	gtk_box_pack_end(GTK_BOX(hbox), multiple_sel_togbtn, FALSE, FALSE, 4);
+	gtk_box_pack_end(GTK_BOX(hbox), multiple_sel_togbtn, FALSE, FALSE, HSPACING_NARROW);
 	CLAWS_SET_TIP(multiple_sel_togbtn,
 			     _("Toggle multiple selection"));
 	g_signal_connect(G_OBJECT(multiple_sel_togbtn), "toggled",
@@ -637,7 +638,7 @@ SummaryView *summary_create(MainWindow *mainwin)
 	
 	statlabel_msgs = gtk_label_new("");
 	gtk_widget_show(statlabel_msgs);
-	gtk_box_pack_end(GTK_BOX(stat_box), statlabel_msgs, FALSE, FALSE, 4);
+	gtk_box_pack_end(GTK_BOX(stat_box), statlabel_msgs, FALSE, FALSE, HSPACING_NARROW);
 
 	hbox_spc = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	gtk_widget_show(hbox_spc);
@@ -874,8 +875,10 @@ void summary_relayout(SummaryView *summaryview)
 	case NORMAL_LAYOUT:
 	case WIDE_LAYOUT:
 	case WIDE_MSGLIST_LAYOUT:
-		gtk_box_pack_start(GTK_BOX(summaryview->stat_box), summaryview->hbox_l, TRUE, TRUE, 0);
-		gtk_box_pack_end(GTK_BOX(summaryview->stat_box), summaryview->statlabel_msgs, FALSE, FALSE, 4);
+		gtk_box_pack_start(GTK_BOX(summaryview->stat_box),
+				summaryview->hbox_l, TRUE, TRUE, 0);
+		gtk_box_pack_end(GTK_BOX(summaryview->stat_box),
+				summaryview->statlabel_msgs, FALSE, FALSE, HSPACING_NARROW);
 		gtk_widget_show_all(summaryview->stat_box);
 		gtk_widget_show_all(summaryview->stat_box2);
 		if (prefs_common.layout_mode == WIDE_MSGLIST_LAYOUT ||
@@ -886,8 +889,10 @@ void summary_relayout(SummaryView *summaryview)
 		break;
 	case VERTICAL_LAYOUT:
 	case SMALL_LAYOUT:
-		gtk_box_pack_start(GTK_BOX(summaryview->stat_box), summaryview->hbox_l, TRUE, TRUE, 0);
-		gtk_box_pack_start(GTK_BOX(summaryview->stat_box2), summaryview->statlabel_msgs, FALSE, FALSE, 4);
+		gtk_box_pack_start(GTK_BOX(summaryview->stat_box),
+				summaryview->hbox_l, TRUE, TRUE, 0);
+		gtk_box_pack_start(GTK_BOX(summaryview->stat_box2),
+				summaryview->statlabel_msgs, FALSE, FALSE, HSPACING_NARROW);
 		gtk_widget_show_all(summaryview->stat_box);
 		gtk_widget_show_all(summaryview->stat_box2);
 		if (prefs_common.layout_mode == SMALL_LAYOUT) {
@@ -1666,7 +1671,6 @@ gboolean summary_show(SummaryView *summaryview, FolderItem *item, gboolean avoid
 	toolbar_main_set_sensitive(summaryview->mainwin);
 	
 	summary_thaw(summaryview);
-	debug_print("\n");
 	STATUSBAR_PUSH(summaryview->mainwin, _("Done."));
 	STATUSBAR_POP(summaryview->mainwin);
 	main_window_cursor_normal(summaryview->mainwin);
@@ -2975,6 +2979,8 @@ void summary_reflect_prefs(void)
 		return;
 	summaryview = mainwindow_get_mainwindow()->summaryview;
 
+	summaryview->color_marked = prefs_common.color[COL_MARKED];
+
 	if (!last_smallfont || strcmp(last_smallfont, SMALL_FONT) ||
 			!last_normalfont || strcmp(last_normalfont, NORMAL_FONT) ||
 			!last_boldfont || strcmp(last_boldfont, BOLD_FONT) ||
@@ -3589,7 +3595,7 @@ static inline void summary_set_header(SummaryView *summaryview, gchar *text[],
 
 static void summary_display_msg(SummaryView *summaryview, GtkCMCTreeNode *row)
 {
-	summary_display_msg_full(summaryview, row, FALSE, FALSE);
+	summary_display_msg_full(summaryview, row, FALSE, FALSE, FALSE);
 }
 
 static gboolean defer_change(gpointer data);
@@ -3728,7 +3734,8 @@ static int msginfo_mark_as_read_timeout(void *data)
 
 static void summary_display_msg_full(SummaryView *summaryview,
 				     GtkCMCTreeNode *row,
-				     gboolean new_window, gboolean all_headers)
+				     gboolean new_window, gboolean all_headers,
+				     gboolean from_sep_msgview)
 {
 	GtkCMCTree *ctree = GTK_CMCTREE(summaryview->ctree);
 	MsgInfo *msginfo;
@@ -3807,6 +3814,9 @@ static void summary_display_msg_full(SummaryView *summaryview,
 					msginfo_mark_as_read_timeout, data);
 		} else if (new_window || !prefs_common.mark_as_read_on_new_window) {
 			msginfo_mark_as_read(summaryview, msginfo, row);
+		} else if (from_sep_msgview &&
+			   prefs_common.mark_as_read_on_new_window) {
+			msginfo_mark_as_read(summaryview, msginfo, row);
 		}
 	}
 
@@ -3824,7 +3834,7 @@ void summary_display_msg_selected(SummaryView *summaryview,
 	if (summary_is_locked(summaryview)) return;
 	summaryview->displayed = NULL;
 	summary_display_msg_full(summaryview, summaryview->selected, FALSE,
-				 all_headers);
+				 all_headers, FALSE);
 }
 
 void summary_redisplay_msg(SummaryView *summaryview)
@@ -3838,14 +3848,15 @@ void summary_redisplay_msg(SummaryView *summaryview)
 	}
 }
 
-void summary_open_msg(SummaryView *summaryview)
+void summary_open_msg(SummaryView *summaryview, gboolean new_window,
+		      gboolean from_sep_msgview)
 {
 	if (!summaryview->selected) return;
 	
 	/* CLAWS: if separate message view, don't open a new window
 	 * but rather use the current separated message view */
 	summary_display_msg_full(summaryview, summaryview->selected, 
-				 TRUE, FALSE);
+				 new_window, FALSE, from_sep_msgview);
 }
 
 void summary_view_source(SummaryView * summaryview)
@@ -7182,7 +7193,7 @@ void summary_open_row(GtkSCTree *sctree, SummaryView *summaryview)
 	if (FOLDER_SHOWS_TO_HDR(summaryview->folder_item))
 		summary_reedit(summaryview);
 	else
-		summary_open_msg(summaryview);
+		summary_open_msg(summaryview, TRUE, FALSE);
 
 	summaryview->display_msg = FALSE;
 }

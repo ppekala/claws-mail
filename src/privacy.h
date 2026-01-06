@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2021 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2025 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,8 @@ typedef enum {
 	SIGNATURE_INVALID,
 	SIGNATURE_CHECK_FAILED,
 	SIGNATURE_CHECK_TIMEOUT,
-	SIGNATURE_CHECK_ERROR
+	SIGNATURE_CHECK_ERROR,
+	SIGNATURE_CHECK_NO_KEY
 } SignatureStatus;
 
 typedef struct _SignatureData {
@@ -66,6 +67,8 @@ gint privacy_mimeinfo_check_signature	(MimeInfo *mimeinfo,
 SignatureStatus privacy_mimeinfo_get_sig_status	(MimeInfo *);
 gchar *privacy_mimeinfo_get_sig_info		(MimeInfo *, gboolean);
 
+gboolean privacy_mimeinfo_system_can_locate_keys(MimeInfo *);
+gboolean privacy_mimeinfo_system_locate_keys	(const gchar *, MimeInfo *);
 gboolean privacy_mimeinfo_is_encrypted		(MimeInfo *);
 gint privacy_mimeinfo_decrypt			(MimeInfo *);
 
@@ -73,7 +76,8 @@ GSList *privacy_get_system_ids			();
 const gchar *privacy_system_get_name		(const gchar *);
 gboolean privacy_system_can_sign		(const gchar *);
 gboolean privacy_system_can_encrypt		(const gchar *);
-
+gboolean privacy_system_can_locate_keys	(void);
+gboolean privacy_system_locate_key		(gchar *);
 gboolean privacy_sign				(const gchar  *system,
 						 MimeInfo     *mimeinfo,
 						 PrefsAccount *account,
@@ -119,6 +123,7 @@ struct _PrivacySystem {
 	const gchar	*(*get_encrypt_warning)	(void);
 	void 		 (*inhibit_encrypt_warning)	(gboolean inhibit);
 	gboolean	 (*auto_check_signatures)(void);
+	gboolean	 (*locate_keys)(const gchar *email_addr);
 };
 
 struct _PrivacyData {

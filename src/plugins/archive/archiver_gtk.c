@@ -2,7 +2,7 @@
 
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2023 Michael Rasmussen and the Claws Mail Team
+ * Copyright (C) 1999-2025 Michael Rasmussen and the Claws Mail Team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -261,6 +261,12 @@ static COMPRESS_METHOD get_compress_method(GSList* btn) {
 #if ARCHIVE_VERSION_NUMBER >= 3001900
 			else if (strcmp("LZ4", name) == 0) {
 				debug_print("LZ4 compression enabled\n");
+				return LZ4;
+			}
+#endif
+#if ARCHIVE_VERSION_NUMBER >= 3001900
+			else if (strcmp("ZSTD", name) == 0) {
+				debug_print("ZSTD compression enabled\n");
 				return LZ4;
 			}
 #endif
@@ -551,13 +557,13 @@ static gboolean archiver_save_files(struct ArchivePage* page) {
 	if ((perm = file_is_writeable(page)) != A_FILE_OK) {
 		switch (perm) {
 			case A_FILE_EXISTS:
-				msg = g_strdup_printf(_("%s: Exists. Continue anyway?"), page->name);
+				msg = g_strdup_printf(_("%s exists. Continue anyway?"), page->name);
 				break;
 			case A_FILE_IS_LINK:
-				msg = g_strdup_printf(_("%s: Is a link. Cannot continue"), page->name);
+				msg = g_strdup_printf(_("%s is a link. Cannot continue"), page->name);
 				break;
 			 case A_FILE_IS_DIR:
-				 msg = g_strdup_printf(_("%s: Is a directory. Cannot continue"), page->name);
+				 msg = g_strdup_printf(_("%s is a directory. Cannot continue"), page->name);
 				break;
 			case A_FILE_NO_WRITE:
 				 msg = g_strdup_printf(_("%s: Missing permissions. Cannot continue"), page->name);
@@ -714,6 +720,11 @@ static void show_result(struct ArchivePage* page) {
 #if ARCHIVE_VERSION_NUMBER >= 3001900
 		case LZ4:
 			method = g_strdup("LZ4");
+			break;
+#endif
+#if ARCHIVE_VERSION_NUMBER >= 3001900
+		case ZSTD:
+			method = g_strdup("ZSTD");
 			break;
 #endif
 		case NO_COMPRESS:
@@ -1021,12 +1032,14 @@ void archiver_gtk_show(void) {
 #if ARCHIVE_VERSION_NUMBER >= 3001900
 	GtkWidget* lz4_radio_btn;
 #endif
+#if ARCHIVE_VERSION_NUMBER >= 3001900
+	GtkWidget* zstd_radio_btn;
+#endif
 	GtkWidget* no_radio_btn;
 	GtkWidget* shar_radio_btn;
 	GtkWidget* pax_radio_btn;
 	GtkWidget* cpio_radio_btn;
 	GtkWidget* tar_radio_btn;
-	GtkWidget* content_area;
 	struct ArchivePage* page;
 	MainWindow* mainwin = mainwindow_get_mainwindow();
 
@@ -1051,15 +1064,9 @@ void archiver_gtk_show(void) {
 				G_CALLBACK(archiver_dialog_cb),
 				page);
 
-	frame = gtk_frame_new(_("Enter Archiver arguments"));
-	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_ETCHED_OUT);
-	gtk_container_set_border_width(GTK_CONTAINER(frame), 4);
-	content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-	gtk_container_add(GTK_CONTAINER(content_area), frame);
-
 	vbox1 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
 	gtk_container_set_border_width (GTK_CONTAINER (vbox1), 4);
-	gtk_container_add(GTK_CONTAINER(frame), vbox1);
+	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), vbox1);
 	
 	hbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
 	gtk_container_set_border_width(GTK_CONTAINER(hbox1), 4);
@@ -1172,6 +1179,14 @@ void archiver_gtk_show(void) {
         archiver_set_tooltip(lz4_radio_btn, g_strdup_printf(_("Choose this option to use %s compression for the archive"), "LZ4"));
 #endif
 
+#if ARCHIVE_VERSION_NUMBER >= 3004000
+	zstd_radio_btn = gtk_radio_button_new_with_mnemonic_from_widget(
+					GTK_RADIO_BUTTON(gzip_radio_btn), "ZSTD");
+	gtk_widget_set_name(zstd_radio_btn, "ZSTD");
+	gtk_box_pack_start(GTK_BOX(hbox1), zstd_radio_btn, FALSE, FALSE, 0);
+        archiver_set_tooltip(zstd_radio_btn, g_strdup_printf(_("Choose this option to use %s compression for the archive"), "ZSTD"));
+#endif
+
 	no_radio_btn = gtk_radio_button_new_with_mnemonic_from_widget(
 					GTK_RADIO_BUTTON(gzip_radio_btn), _("_None"));
 	gtk_widget_set_name(no_radio_btn, "NONE");
@@ -1218,6 +1233,11 @@ void archiver_gtk_show(void) {
 #if ARCHIVE_VERSION_NUMBER >= 3001900
 	case COMPRESSION_LZ4:
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(lz4_radio_btn), TRUE);
+		break;
+#endif
+#if ARCHIVE_VERSION_NUMBER >= 3004000
+	case COMPRESSION_ZSTD:
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(zstd_radio_btn), TRUE);
 		break;
 #endif
 	case COMPRESSION_NONE:

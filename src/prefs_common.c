@@ -743,6 +743,8 @@ static PrefParam param[] = {
 	 P_COLOR, NULL, NULL, NULL},
 	{"target_folder_color", "#da1cca", &prefs_common.color[COL_TGT_FOLDER],
 	 P_COLOR, NULL, NULL, NULL},
+	{"marked_color", "#0000ff", &prefs_common.color[COL_MARKED],
+	 P_COLOR, NULL, NULL, NULL},
 	{"signature_color", "#797979", &prefs_common.color[COL_SIGNATURE],
 	 P_COLOR, NULL, NULL, NULL},
 	{"recycle_quote_colors", "FALSE", &prefs_common.recycle_quote_colors,
@@ -1192,8 +1194,13 @@ static PrefParam param[] = {
 	 NULL, NULL, NULL},
 	{"stripes_color_offset", "4000", &prefs_common.stripes_color_offset, P_INT,
 	 NULL, NULL, NULL},
-	{"enable_hscrollbar", "TRUE", &prefs_common.enable_hscrollbar, P_BOOL,
+#ifndef GENERIC_UMPC
+	{"enable_hscrollbar", "FALSE", &prefs_common.enable_hscrollbar, P_BOOL,
 	 NULL, NULL, NULL},
+#else
+	{"enable_hscrollbar", "TRUE", &prefs_common.enable_hscrollbar, P_BOOL,
+	 NULL, NULL, NULL}, 
+#endif
 	{"folderview_vscrollbar_policy", "0",
 	 &prefs_common.folderview_vscrollbar_policy, P_ENUM,
 	 NULL, NULL, NULL},
@@ -1328,6 +1335,9 @@ static PrefParam param[] = {
 	 P_BOOL, NULL, NULL, NULL},
 
 	{"mh_compat_mode", "FALSE", &prefs_common.mh_compat_mode, P_BOOL, NULL, NULL, NULL},
+
+	{"mainwin_toolbar_always_enable_actions", "FALSE", &prefs_common.mainwin_toolbar_always_enable_actions, P_BOOL,
+	 NULL, NULL, NULL},
 
 	{NULL, NULL, NULL, P_OTHER, NULL, NULL, NULL}
 };

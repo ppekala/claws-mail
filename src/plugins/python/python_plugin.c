@@ -483,6 +483,7 @@ static void browse_python_scripts_dir(GtkAction *action, gpointer data)
 {
   gchar *uri;
   GdkAppLaunchContext *launch_context;
+  GdkDisplay *gdk_display;
   GError *error = NULL;
   MainWindow *mainwin;
 
@@ -491,7 +492,12 @@ static void browse_python_scripts_dir(GtkAction *action, gpointer data)
       debug_print("Browse Python scripts: Problems getting the mainwindow\n");
       return;
   }
-  launch_context = gdk_app_launch_context_new();
+  gdk_display = gdk_display_get_default();
+  if(!gdk_display) {
+      debug_print("Browse Python scripts: Problems getting the default display\n");
+      return;
+  }
+  launch_context = gdk_display_get_app_launch_context(gdk_display);
   gdk_app_launch_context_set_screen(launch_context, gtk_widget_get_screen(mainwin->window));
   uri = g_strconcat("file://", get_rc_dir(), G_DIR_SEPARATOR_S, PYTHON_SCRIPTS_BASE_DIR, G_DIR_SEPARATOR_S, NULL);
   g_app_info_launch_default_for_uri(uri, G_APP_LAUNCH_CONTEXT(launch_context), &error);
@@ -724,7 +730,7 @@ const gchar *plugin_name(void)
 
 const gchar *plugin_desc(void)
 {
-  return _("This plugin provides Python integration features.\n"
+  return _("This plugin provides Python integration features.\n\n"
       "Python code can be entered interactively into an embedded Python console, "
       "under Tools -> Show Python console, or stored in scripts.\n\n"
       "These scripts are then available via the menu. You can assign "
@@ -732,29 +738,26 @@ const gchar *plugin_desc(void)
       "You can also put buttons for script invocation into the toolbars "
       "using Claws Mail's builtin toolbar editor.\n\n"
       "You can provide scripts working on the main window by placing files "
-      "into ~/.claws-mail/python-scripts/main.\n\n"
+      "into '~/.claws-mail/python-scripts/main'.\n\n"
       "You can also provide scripts working on an open compose window "
-      "by placing files into ~/.claws-mail/python-scripts/compose.\n\n"
-      "The folder ~/.claws-mail/python-scripts/auto/ may contain some "
+      "by placing files into '~/.claws-mail/python-scripts/compose'.\n\n"
+      "The folder '~/.claws-mail/python-scripts/auto/' may contain some "
       "scripts that are automatically executed when certain events "
       "occur. Currently, the following files in this directory "
       "are recognised:\n\n"
-      "compose_any\n"
-      "Gets executed whenever a compose window is opened, no matter "
+      " 'compose_any' - gets executed whenever a compose window is opened, no matter "
       "if that opening happened as a result of composing a new message, "
       "replying or forwarding a message.\n\n"
-      "startup\n"
-      "Executed at plugin load\n\n"
-      "shutdown\n"
-      "Executed at plugin unload\n\n"
-      "\nFor the most up-to-date API documentation, type\n"
-      "\n help(clawsmail)\n"
-      "\nin the interactive Python console.\n"
-      "\nThe source distribution of this plugin comes with various example scripts "
+      " 'startup' - executed at plugin load.\n\n"
+      " 'shutdown' - executed at plugin unload.\n\n"
+      "For the most up-to-date API documentation, type:\n\n"
+      " help(clawsmail)\n\n"
+      "in the interactive Python console.\n\n"
+      "The source distribution of this plugin comes with various example scripts "
       "in the \"examples\" subdirectory. If you wrote a script that you would be "
       "interested in sharing, feel free to send it to me to have it considered "
-      "for inclusion in the examples.\n"
-      "\nFeedback to <berndth@gmx.de> is welcome.");
+      "for inclusion in the examples.\n\n"
+      "Feedback to <berndth@gmx.de> is welcome.");
 }
 
 const gchar *plugin_type(void)

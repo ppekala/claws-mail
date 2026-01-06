@@ -136,6 +136,10 @@
 #include "passwordstore.h"
 #include "file-utils.h"
 
+#ifdef USE_OAUTH2
+#include "oauth2.h"
+#endif
+
 #ifdef HAVE_LIBETPAN
 #include "imap-thread.h"
 #include "nntp-thread.h"
@@ -150,6 +154,9 @@
 #include "crash.h"
 
 #include "timing.h"
+#ifdef G_OS_WIN32
+#include <windows.h>
+#endif
 
 #ifdef HAVE_NETWORKMANAGER_SUPPORT
 /* Went offline due to NetworkManager */
@@ -1276,6 +1283,9 @@ int main(int argc, char *argv[])
 
 	prefs_account_init();
 	account_read_config_all();
+#ifdef USE_OAUTH2
+	account_read_oauth2_all();
+#endif
 
 	if (prefs_update_config_version_accounts() < 0) {
 		debug_print("Accounts configuration file version upgrade failed, exiting\n");
@@ -1999,7 +2009,7 @@ static void parse_cmd_opt(int argc, char *argv[])
  			g_print("%s\n", _("  --statistics           show session statistics"));
  			g_print("%s\n", _("  --reset-statistics     reset session statistics"));
 			g_print("%s\n", _("  --select folder[/msg]  jump to the specified folder/message\n" 
-					  "                         folder is a folder id like 'folder/sub_folder', a file:// uri or an absolute path"));
+					  "                         folder is a folder id like 'folder/subfolder', a file:// uri or an absolute path"));
 			g_print("%s\n", _("  --import-mbox file     import the specified mbox file\n"));
 			g_print("%s\n", _("  --online               switch to online mode"));
 			g_print("%s\n", _("  --offline              switch to offline mode"));

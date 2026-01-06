@@ -297,7 +297,7 @@ static gboolean tnef_parse (MimeParser *parser, MimeInfo *mimeinfo)
 		debug_print("error decoding\n");
 		return FALSE;
 	}
-	debug_print("Tnef parser parsing part (%d).\n", mimeinfo->length);
+	debug_print("Tnef parser parsing part (%ld).\n", mimeinfo->length);
 	if (mimeinfo->content == MIMECONTENT_FILE)
 		debug_print("content: %s\n", mimeinfo->data.filename);
 	else 
@@ -446,7 +446,7 @@ const gchar *plugin_desc(void)
 {
 	return _("This Claws Mail plugin allows you to read application/ms-tnef attachments.\n\n"
 		 "The plugin uses the Ytnef library, which is copyright 2002-2007 by "
-		 "Randall Hand <yerase@yerot.com>");
+		 "Randall Hand <yerase@yerot.com>.");
 }
 
 const gchar *plugin_type(void)

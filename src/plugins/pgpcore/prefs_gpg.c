@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2004-2019 the Claws Mail team
+ * Copyright (C) 2004-2025 the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,8 @@ static PrefParam param[] = {
 	{"autocompletion_limit", "0",
 	 &prefs_gpg.autocompletion_limit, P_INT,
 	 NULL, NULL, NULL},
+	{"use_gpg_locate_keys", "FALSE", &prefs_gpg.use_gpg_locate_keys, P_BOOL,
+	 NULL, NULL, NULL},
 	{"use_gpg_agent", "TRUE", &prefs_gpg.use_gpg_agent, P_BOOL,
 	 NULL, NULL, NULL},
 	{"store_passphrase", "FALSE", &prefs_gpg.store_passphrase, P_BOOL,
@@ -79,6 +81,7 @@ struct GPGPage
 
 	GtkWidget *checkbtn_auto_check_signatures;
 	GtkWidget *checkbtn_autocompletion;
+	GtkWidget *checkbtn_use_gpg_locate_keys;
 	GtkWidget *checkbtn_use_gpg_agent;
         GtkWidget *checkbtn_store_passphrase;  
         GtkWidget *spinbtn_store_passphrase;  
@@ -119,6 +122,7 @@ static void prefs_gpg_create_widget_func(PrefsPage *_page,
 	GtkWidget *checkbtn_store_passphrase;
 	GtkWidget *checkbtn_auto_check_signatures;
 	GtkWidget *checkbtn_autocompletion;
+	GtkWidget *checkbtn_use_gpg_locate_keys;
 	GtkWidget *checkbtn_gpg_warning;
 	GtkWidget *hbox1, *hbox2;
 	GtkWidget *vbox1, *vbox2;
@@ -143,6 +147,13 @@ static void prefs_gpg_create_widget_func(PrefsPage *_page,
 
 	PACK_CHECK_BUTTON (vbox2, checkbtn_autocompletion,
 			_("Use keyring for address autocompletion"));
+
+	PACK_CHECK_BUTTON (vbox2, checkbtn_use_gpg_locate_keys,
+			_("Automatically locate missing keys when sending encrypted messages"));
+	CLAWS_SET_TIP(checkbtn_use_gpg_locate_keys,
+		      _("If recipient's key is not in your keyring, a remote fetch will be attempted "
+			"if permitted by your 'auto-key-locate' configuration in gpg.conf, "
+			"(default: local,wkd)."));
 
 	vbox2 = gtkut_get_options_frame(vbox1, &frame_passphrase, _("Passphrase"));
 
@@ -204,7 +215,7 @@ static void prefs_gpg_create_widget_func(PrefsPage *_page,
 	gpg_path = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox2), gpg_path, TRUE, TRUE, 0);
 	CLAWS_SET_TIP(gpg_path,
-		      _("If left blank the location of the GnuPG executable will be automatically determined."));
+		      _("If left blank the location of the GnuPG executable will be automatically determined"));
 	gpg_path_btn = gtkut_get_browse_file_btn(_("Bro_wse"));
 	gtk_box_pack_start(GTK_BOX(hbox2), gpg_path_btn, FALSE, FALSE, 0);
 	g_signal_connect(G_OBJECT(gpg_path_btn), "clicked",
@@ -218,6 +229,7 @@ static void prefs_gpg_create_widget_func(PrefsPage *_page,
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbtn_auto_check_signatures), config->auto_check_signatures);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbtn_autocompletion), config->autocompletion);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbtn_use_gpg_locate_keys), config->use_gpg_locate_keys);
 	if (!g_getenv("GPG_AGENT_INFO"))
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbtn_use_gpg_agent), FALSE);
 	else
@@ -231,6 +243,7 @@ static void prefs_gpg_create_widget_func(PrefsPage *_page,
 
 	page->checkbtn_auto_check_signatures = checkbtn_auto_check_signatures;
 	page->checkbtn_autocompletion = checkbtn_autocompletion;
+	page->checkbtn_use_gpg_locate_keys = checkbtn_use_gpg_locate_keys;
 	page->checkbtn_store_passphrase = checkbtn_store_passphrase;
 	page->spinbtn_store_passphrase = spinbtn_store_passphrase;
 	page->checkbtn_passphrase_grab = checkbtn_passphrase_grab;
@@ -266,6 +279,8 @@ static void prefs_gpg_save_func(PrefsPage *_page)
 		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(page->checkbtn_auto_check_signatures));
 	config->autocompletion =
 		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(page->checkbtn_autocompletion));
+	config->use_gpg_locate_keys =
+		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(page->checkbtn_use_gpg_locate_keys));
 	config->use_gpg_agent = 
 		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(page->checkbtn_use_gpg_agent));
 	config->store_passphrase = 
@@ -434,7 +449,7 @@ static void prefs_gpg_account_create_widget_func(PrefsPage *_page,
 	gtk_widget_show(new_key_box);
 	gtk_box_pack_start(GTK_BOX(hbox), new_key_box, FALSE, FALSE, 0);
 
-	image = gtk_button_new_from_icon_name("dialog-warning",
+	image = gtk_button_new_from_icon_name("dialog-warning-symbolic",
 			GTK_ICON_SIZE_SMALL_TOOLBAR);
 
 	gtk_box_pack_start(GTK_BOX(new_key_box), image, FALSE, FALSE, 0);

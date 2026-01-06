@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2014-2015 Ricardo Mones and the Claws Mail Team
+ * Copyright (C) 2014-2025 Ricardo Mones and the Claws Mail Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -406,16 +406,16 @@ const gchar *plugin_name(void)
  */
 const gchar *plugin_desc(void)
 {
-	return _("Display libravatar profiles' images for mail messages. More\n"
-		 "info about libravatar at http://www.libravatar.org/. If you have\n"
-		 "a gravatar.com profile but not a libravatar one, those will also\n"
-		 "be retrieved (when redirections are allowed in plugin config).\n"
+	return _("Display libravatar profiles' images for mail messages. More "
+		 "info about libravatar at https://libravatar.org/. If you have "
+		 "a gravatar.com profile but not a libravatar one, those will also "
+		 "be retrieved (when redirections are allowed in plugin config).\n\n"
 		 "Plugin config page is available from main window at:\n"
-		 "/Configuration/Preferences/Plugins/Libravatar.\n\n"
-		 "This plugin uses libcurl to retrieve images, so if you're behind a\n"
-		 "proxy please refer to curl(1) manpage for details on 'http_proxy'\n"
+		 "'/Configuration/Preferences/Plugins/Libravatar'.\n\n"
+		 "This plugin uses libcurl to retrieve images, so if you're behind a "
+		 "proxy please refer to curl(1) manpage for details on 'http_proxy' "
 		 "configuration. More details about this and others on README file.\n\n"
-		 "Feedback to <ricardo@mones.org> is welcome.\n");
+		 "Feedback to <ricardo@mones.org> is welcome.");
 }
 
 /**

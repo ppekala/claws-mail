@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2003-2024 the Claws Mail team
+ * Copyright (C) 2003-2025 the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -416,16 +416,14 @@ static void prefs_filtering_action_create(void)
 	frame = gtk_frame_new(_("Rule"));
 	gtk_frame_set_label_align(GTK_FRAME(frame), 0.01, 0.5);
 	gtk_box_pack_start (GTK_BOX (vbox1), frame, FALSE, FALSE, 0);	
-	gtk_widget_set_size_request(frame, -1, 110);
 	
 	table = gtk_grid_new();
-	gtk_container_set_border_width(GTK_CONTAINER(table), 2);
+	gtk_container_set_border_width(GTK_CONTAINER(table), VSPACING_NARROW);
 	gtk_grid_set_row_spacing(GTK_GRID(table), VSPACING_NARROW_2);
-	gtk_grid_set_column_spacing(GTK_GRID(table), VSPACING_NARROW);
-
-        gtk_container_add(GTK_CONTAINER(frame), table);
+	gtk_grid_set_column_spacing(GTK_GRID(table), HSPACING_NARROW);
+	gtk_container_add(GTK_CONTAINER(frame), table);
         
-        /* first row labels */
+	/* first row labels */
 
 	label1 = gtk_label_new (_("Action"));
 	gtk_widget_set_size_request(label1, LABELS_WIDTH, -1);
@@ -904,7 +902,7 @@ static FilteringAction * prefs_filtering_action_dialog_to_action(gboolean alert)
 		if (*destination == '\0') {
 			if (alert)
                                 alertpanel_error(action_id == ACTION_EXECUTE 
-						 ? _("Command-line not set")
+						 ? _("Command-line not set.")
 						 : _("Destination is not set."));
 			g_free(destination);
 			return NULL;

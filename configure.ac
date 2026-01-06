@@ -237,7 +237,6 @@ dnl floor and ceil are  in -lm
 LIBS="$LIBS -lm"
 
 dnl for gettext
-ALL_LINGUAS="ca cs da de el_GR en_GB es fi fr hu id_ID it ja nb nl pl pt_BR pt_PT ro ru sk sq sv tr zh_TW"
 GETTEXT_PACKAGE=claws-mail
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Define text domain.])
@@ -489,18 +488,10 @@ dnl GNUTLS
 AC_MSG_CHECKING([whether to use GnuTLS])
 AC_MSG_RESULT($enable_gnutls)
 if test "x$enable_gnutls" != "xno"; then
-        PKG_CHECK_MODULES(GNUTLS, gnutls >= 2.2,
+        PKG_CHECK_MODULES(GNUTLS, gnutls >= 3.4,
         [
                 AC_DEFINE(USE_GNUTLS, 1, gnutls)
                 echo "Building with GnuTLS"
-		PKG_CHECK_MODULES(GNUTLS, gnutls >= 2.11,
-		[
-			dnl No linking against libgcrypt needed
-		],
-		[
-			dnl linking against libgcrypt *is* needed
-			GNUTLS_LIBS="$GNUTLS_LIBS -lgcrypt"
-		])
         ],
         [
                 echo "Building without GnuTLS"
@@ -2242,33 +2233,35 @@ echo ""
 echo "$PACKAGE $VERSION"
 echo ""
 if test x"$enable_alternate_addressbook" = xyes; then
-	echo "Using Address Book : Alternate experimental interface"
+	echo "Using Address Book   : Alternate experimental interface"
 else
-	echo "Using Address Book : Original stable interface"
-	echo "JPilot             : $enable_jpilot"
-	echo "LDAP               : $enable_ldap"
+	echo "Using Address Book   : Original stable interface"
+	echo "JPilot               : $enable_jpilot"
+	echo "LDAP                 : $enable_ldap"
 fi
-echo "gnuTLS             : $enable_gnutls"
-echo "OAuth2             : $enable_oauth2"
-echo "iconv              : $am_cv_func_iconv"
-echo "compface           : $enable_compface"
-echo "IPv6               : $enable_ipv6"
-echo "enchant            : $enable_enchant"
-echo "IMAP4              : $enable_libetpan"
-echo "NNTP               : $enable_libetpan"
-echo "Crash dialog       : $enable_crash_dialog"
-echo "LibSM              : $enable_libsm"
-echo "DBUS               : $enable_dbus"
-echo "NetworkManager     : $enable_networkmanager"
-echo "Manual             : $enable_manual"
-echo "Generic UMPC code  : $enable_generic_umpc"
-echo "SVG support        : $enable_svg"
-echo "Config dir         : $ac_cv_with_config_dir"
-echo "Password crypto    : $pwd_crypto"
-echo "Unit tests         : $enable_tests"
+echo "GnuTLS               : $enable_gnutls"
+echo "OAuth2               : $enable_oauth2"
+echo "iconv                : $am_cv_func_iconv"
+echo "compface             : $enable_compface"
+echo "IPv6                 : $enable_ipv6"
+echo "enchant              : $enable_enchant"
+echo "IMAP4 (libetpan)     : $enable_libetpan"
+echo "NNTP (libetpan)      : $enable_libetpan"
+echo "Crash dialog         : $enable_crash_dialog"
+echo "LibSM                : $enable_libsm"
+echo "DBUS                 : $enable_dbus"
+echo "NetworkManager       : $enable_networkmanager"
+echo "Manual               : $enable_manual"
+echo "Generic UMPC code    : $enable_generic_umpc"
+echo "SVG support          : $enable_svg"
+echo "Password crypto      : $pwd_crypto"
+echo "Unit tests           : $enable_tests"
+echo "pthread              : $enable_pthread"
+echo "Startup notification : $enable_startup_notification"
+echo "Valgrind support     : $enable_valgrind"
 
 if test -n "$more_debug_output_modules"; then
-	echo "More debug output enabled for:"
+	echo "Extra debug output enabled for:"
 	for module in $more_debug_output_modules; do
 		echo "            - $module"
 	done
@@ -2306,5 +2299,7 @@ done;
 fi
 echo ""
 echo "The binary will be installed in $prefix/bin"
+echo ""
+echo "Configuration directory: $ac_cv_with_config_dir"
 echo ""
 echo "Configure finished, type 'make' to build."

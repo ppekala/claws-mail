@@ -75,6 +75,10 @@
 	rgba.alpha = 1.0; \
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Since GDK's gdk_rgba_to_string() produces a string
  * representation unsuitable for us, we have to have
  * our own function to produce a "#rrggbb" string from
@@ -147,7 +151,7 @@ void label_window_destroy(GtkWidget *widget);
 
 void gtkut_window_popup			(GtkWidget	*window);
 GtkWidget *gtkut_window_new		(GtkWindowType	 type,
-					 const gchar	*class);
+					 const gchar	*cls);
 
 
 void gtkut_widget_get_uposition		(GtkWidget	*widget,
@@ -266,5 +270,14 @@ gboolean gtkut_pointer_is_grabbed(GtkWidget *widget);
 gpointer gtkut_tree_view_get_selected_pointer(GtkTreeView *view,
 		gint column, GtkTreeModel **_model, GtkTreeSelection **_selection,
 		GtkTreeIter *_iter);
+
+gint gtkut_gdk_screen_width();
+gint gtkut_gdk_screen_height();
+void gtkut_gdk_screen_size_changed (GdkScreen* self, gpointer data);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* __GTKUTILS_H__ */

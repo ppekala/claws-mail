@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2024 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2025 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,6 +58,8 @@
 #include "manage_window.h"
 #include "manual.h"
 
+static GdkRectangle _screen_area = { 0 };
+
 gboolean gtkut_get_font_size(GtkWidget *widget,
 			     gint *width, gint *height)
 {
@@ -101,7 +103,7 @@ void gtkut_stock_button_add_help(GtkWidget *bbox, GtkWidget **help_btn)
 {
 	cm_return_if_fail(bbox != NULL);
 
-	*help_btn = gtkut_stock_button("help-browser", "Help");
+	*help_btn = gtkut_stock_button("help-browser-symbolic", "Help");
 
 	gtk_widget_set_can_default(*help_btn, TRUE);
 	gtk_box_pack_end(GTK_BOX (bbox), *help_btn, TRUE, TRUE, 0);
@@ -618,7 +620,7 @@ void gtkut_window_popup(GtkWidget *window)
 		gdk_window_move(gdkwin, new_x, new_y);
 
 	gtk_window_set_skip_taskbar_hint(GTK_WINDOW(window), FALSE);
-	gtk_window_present_with_time(GTK_WINDOW(window), time(NULL));
+	gtk_window_present(GTK_WINDOW(window));
 }
 
 void gtkut_widget_get_uposition(GtkWidget *widget, gint *px, gint *py)
@@ -892,7 +894,7 @@ GtkWidget *gtkut_get_browse_file_btn(const gchar *button_label)
 
 	button = gtk_button_new_with_mnemonic(button_label);
 	gtk_button_set_image(GTK_BUTTON(button),
-		gtk_image_new_from_icon_name("folder", GTK_ICON_SIZE_BUTTON));
+		gtk_image_new_from_icon_name("folder-symbolic", GTK_ICON_SIZE_BUTTON));
 
 	return button;
 }
@@ -906,7 +908,7 @@ GtkWidget *gtkut_get_browse_directory_btn(const gchar *button_label)
 
 	button = gtk_button_new_with_mnemonic(button_label);
 	gtk_button_set_image(GTK_BUTTON(button),
-		gtk_image_new_from_icon_name("folder", GTK_ICON_SIZE_BUTTON));
+		gtk_image_new_from_icon_name("folder-symbolic", GTK_ICON_SIZE_BUTTON));
 
 	return button;
 }
@@ -917,7 +919,7 @@ GtkWidget *gtkut_get_replace_btn(const gchar *button_label)
 
 	button = gtk_button_new_with_mnemonic(button_label);
 	gtk_button_set_image(GTK_BUTTON(button),
-		gtk_image_new_from_icon_name("view-refresh", GTK_ICON_SIZE_BUTTON));
+		gtk_image_new_from_icon_name("view-refresh-symbolic", GTK_ICON_SIZE_BUTTON));
 
 	return button;
 }
@@ -925,10 +927,14 @@ GtkWidget *gtkut_get_replace_btn(const gchar *button_label)
 GtkWidget *gtkut_stock_button(const gchar *stock_image, const gchar *label)
 {
 	GtkWidget *button;
-	
+	gchar *img_sym = NULL;
+
 	cm_return_val_if_fail(stock_image != NULL, NULL);
 
-	button = gtk_button_new_from_icon_name(stock_image, GTK_ICON_SIZE_BUTTON);
+	img_sym = g_strconcat(stock_image, "-symbolic", NULL);
+	button = gtk_button_new_from_icon_name(img_sym, GTK_ICON_SIZE_BUTTON);
+	g_free(img_sym);
+
 	if (label != NULL)
 		gtk_button_set_label(GTK_BUTTON(button), _(label));
 	gtk_button_set_use_underline(GTK_BUTTON(button), TRUE);
@@ -1413,11 +1419,11 @@ gboolean gtkut_tree_model_get_iter_last(GtkTreeModel *model,
 }
 
 GtkWidget *gtkut_window_new		(GtkWindowType	 type,
-					 const gchar	*class)
+					 const gchar	*cls)
 {
 	GtkWidget *window = gtk_window_new(type);
-	gtk_window_set_role(GTK_WINDOW(window), class);
-	gtk_widget_set_name(GTK_WIDGET(window), class);
+	gtk_window_set_role(GTK_WINDOW(window), cls);
+	gtk_widget_set_name(GTK_WIDGET(window), cls);
 	return window;
 }
 
@@ -2031,3 +2037,30 @@ gchar *gtkut_gdk_rgba_to_string(GdkRGBA *rgba)
 	return str;
 }
 #undef RGBA_ELEMENT_TO_BYTE
+
+static void get_screen_rectangle()
+{
+	if (_screen_area.width == 0 && _screen_area.height == 0) {
+		gdk_monitor_get_workarea(
+			gdk_display_get_primary_monitor(gdk_display_get_default()),
+			&_screen_area);
+		debug_print("saved screen area: %u x %u\n", _screen_area.width, _screen_area.height);
+	}
+}
+
+gint gtkut_gdk_screen_width()
+{
+	return _screen_area.width;
+}
+
+gint gtkut_gdk_screen_height()
+{
+	return _screen_area.height;
+}
+
+void gtkut_gdk_screen_size_changed (GdkScreen* self, gpointer data)
+{
+	_screen_area.width = 0;
+	_screen_area.height = 0;
+	get_screen_rectangle();
+}

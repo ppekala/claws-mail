@@ -646,7 +646,7 @@ static GtkActionEntry mainwin_entries[] =
 
 	{"View/Quotes",                 NULL, N_("Quotes"), NULL, NULL, NULL }, 
 	/* {"View/---",                 NULL, "---", NULL, NULL, NULL }, */
-	{"View/UpdateSummary",          NULL, N_("_Update summary"), "<control><alt>U", NULL, G_CALLBACK(update_summary_cb) },
+	{"View/UpdateSummary",          NULL, N_("Refresh message list"), "<control><alt>U", NULL, G_CALLBACK(update_summary_cb) },
 
 /* Message menu */
 	{"Message/Receive",                              NULL, N_("Recei_ve"), NULL, NULL, NULL },
@@ -660,8 +660,8 @@ static GtkActionEntry mainwin_entries[] =
 
 	{"Message/---",                                  NULL, "---", NULL, NULL, NULL },
 
-	{"Message/ComposeEmail",                         NULL, N_("Compose a_n email message"), "<control>M", NULL, G_CALLBACK(mw_compose_mail_cb) },
-	{"Message/ComposeNews",                          NULL, N_("Compose a news message"), NULL, NULL, G_CALLBACK(mw_compose_news_cb) },
+	{"Message/ComposeEmail",                         NULL, N_("Write a_n email message"), "<control>M", NULL, G_CALLBACK(mw_compose_mail_cb) },
+	{"Message/ComposeNews",                          NULL, N_("Write a news message"), NULL, NULL, G_CALLBACK(mw_compose_news_cb) },
 
 	{"Message/Reply",                                NULL, N_("_Reply"), "<control>R", NULL, G_CALLBACK(main_window_reply_cb) }, /* COMPOSE_REPLY */
 	{"Message/ReplyTo",                              NULL, N_("Repl_y to"), NULL, NULL, NULL }, 
@@ -1433,6 +1433,7 @@ MainWindow *main_window_create()
 	SummaryView *summaryview;
 	MessageView *messageview;
 	GtkWidget *ac_menu;
+	GdkScreen *screen;
 
 	static GdkGeometry geometry;
 
@@ -1461,6 +1462,11 @@ MainWindow *main_window_create()
 			 mainwin);
 	g_signal_connect(G_OBJECT(window), "key_press_event",
 			 G_CALLBACK(mainwindow_key_pressed), mainwin);
+
+	screen = gdk_screen_get_default();
+	g_signal_connect(G_OBJECT(screen), "size_changed",
+			 G_CALLBACK(gtkut_gdk_screen_size_changed), NULL);
+	g_signal_emit_by_name(G_OBJECT(screen), "size_changed", NULL);
 
 	gtk_widget_realize(window);
 	gtk_widget_add_events(window, GDK_KEY_PRESS_MASK|GDK_KEY_RELEASE_MASK);
@@ -1917,7 +1923,7 @@ MainWindow *main_window_create()
 	gtk_box_pack_end(GTK_BOX(vbox_body), hbox_stat, FALSE, FALSE, 0);
 	warning_btn = gtk_button_new();
 	gtk_button_set_image(GTK_BUTTON(warning_btn),
-			     gtk_image_new_from_icon_name("dialog-warning", GTK_ICON_SIZE_BUTTON));
+			     gtk_image_new_from_icon_name("dialog-warning-symbolic", GTK_ICON_SIZE_BUTTON));
 	CLAWS_SET_TIP(warning_btn,
 			     _("Some error(s) happened. Click here to view log."));
 	
@@ -2069,8 +2075,7 @@ MainWindow *main_window_create()
 #endif
 	
 	/* allocate colors for summary view and folder view */
-	summaryview->color_marked.red = summaryview->color_marked.green = 0;
-	summaryview->color_marked.blue = (guint16)65535;
+	summaryview->color_marked = prefs_common.color[COL_MARKED];
 
 	summaryview->color_dim.red = summaryview->color_dim.green =
 		summaryview->color_dim.blue = COLOR_DIM;
@@ -4355,7 +4360,7 @@ static void cancel_cb(GtkAction *action, gpointer data)
 static void open_msg_cb(GtkAction *action, gpointer data)
 {
 	MainWindow *mainwin = (MainWindow *)data;
-	summary_open_msg(mainwin->summaryview);
+	summary_open_msg(mainwin->summaryview, TRUE, FALSE);
 }
 
 static void view_source_cb(GtkAction *action, gpointer data)

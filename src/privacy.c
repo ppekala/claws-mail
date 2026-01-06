@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2021 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2025 the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -162,7 +162,7 @@ try_others:
 	for(cur = systems; cur != NULL; cur = g_slist_next(cur)) {
 		PrivacySystem *system = (PrivacySystem *) cur->data;
 
-		if(system->is_signed != NULL && system->is_signed(mimeinfo))
+		if (system->is_signed != NULL && system->is_signed(mimeinfo))
 			return TRUE;
 	}
 
@@ -242,6 +242,45 @@ gint privacy_mimeinfo_check_signature(MimeInfo *mimeinfo,
 	return system->check_signature(mimeinfo, cancellable, callback, user_data);
 }
 
+gboolean privacy_mimeinfo_system_can_locate_keys(MimeInfo *mimeinfo)
+{
+	PrivacySystem *system;
+
+	cm_return_val_if_fail(mimeinfo != NULL, -1);
+
+	if (mimeinfo->privacy == NULL) {
+		privacy_mimeinfo_is_signed(mimeinfo);
+
+		if (mimeinfo->privacy == NULL)
+			return FALSE;
+	}
+
+	system = privacy_data_get_system(mimeinfo->privacy);
+	if (system == NULL)
+		return FALSE;
+	if (system->locate_keys == NULL)
+		return FALSE;
+
+	if (mimeinfo->sig_data == NULL)
+		return FALSE;
+
+	return TRUE;
+}
+
+gboolean privacy_mimeinfo_system_locate_keys(const gchar *email_addr, MimeInfo *mimeinfo)
+{
+	PrivacySystem *system;
+
+	if (!privacy_mimeinfo_system_can_locate_keys(mimeinfo))
+		return FALSE;
+
+	system = privacy_data_get_system(mimeinfo->privacy);
+	if (system == NULL)
+		return FALSE;
+
+	return system->locate_keys(email_addr);
+}
+
 SignatureStatus privacy_mimeinfo_get_sig_status(MimeInfo *mimeinfo)
 {
 	PrivacySystem *system;
@@ -301,7 +340,7 @@ gboolean privacy_mimeinfo_is_encrypted(MimeInfo *mimeinfo)
 	for(cur = systems; cur != NULL; cur = g_slist_next(cur)) {
 		PrivacySystem *system = (PrivacySystem *) cur->data;
 
-		if(system->is_encrypted != NULL && system->is_encrypted(mimeinfo))
+		if (system->is_encrypted != NULL && system->is_encrypted(mimeinfo))
 			return TRUE;
 	}
 
@@ -320,6 +359,9 @@ static gint decrypt(MimeInfo *mimeinfo, PrivacySystem *system)
 		return -1;
 
 	parentinfo = procmime_mimeinfo_parent(mimeinfo);
+	if (parentinfo == NULL)
+		return -1;
+
 	childnumber = g_node_child_index(parentinfo->node, mimeinfo);
 	
 	procmime_mimeinfo_free_all(&mimeinfo);
@@ -339,7 +381,7 @@ gint privacy_mimeinfo_decrypt(MimeInfo *mimeinfo)
 	for(cur = systems; cur != NULL; cur = g_slist_next(cur)) {
 		PrivacySystem *system = (PrivacySystem *) cur->data;
 
-		if(system->is_encrypted != NULL && system->is_encrypted(mimeinfo))
+		if (system->is_encrypted != NULL && system->is_encrypted(mimeinfo))
 			return decrypt(mimeinfo, system);
 	}
 
@@ -369,7 +411,7 @@ static PrivacySystem *privacy_get_system(const gchar *id)
 	for(cur = systems; cur != NULL; cur = g_slist_next(cur)) {
 		PrivacySystem *system = (PrivacySystem *) cur->data;
 
-		if(strcmp(id, system->id) == 0)
+		if (strcmp(id, system->id) == 0)
 			return system;
 	}
 
@@ -413,6 +455,32 @@ gboolean privacy_system_can_encrypt(const gchar *id)
 		return FALSE;
 
 	return system->can_encrypt;
+}
+
+gboolean privacy_system_can_locate_keys(void)
+{
+	GSList *cur;
+
+	for (cur = systems; cur != NULL; cur = g_slist_next(cur)) {
+		PrivacySystem *system = (PrivacySystem *) cur->data;
+		if (system->locate_keys != NULL)
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+gboolean privacy_system_locate_key(gchar * email_address)
+{
+	GSList *cur;
+
+	for (cur = systems; cur != NULL; cur = g_slist_next(cur)) {
+		PrivacySystem *system = (PrivacySystem *) cur->data;
+		if (system->locate_keys != NULL)
+			return system->locate_keys(email_address);
+	}
+
+	return FALSE;
 }
 
 gboolean privacy_sign(const gchar *id, MimeInfo *target, PrefsAccount *account, const gchar *from_addr)

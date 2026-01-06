@@ -233,6 +233,8 @@ static void mail_to_uri_cb 			(GtkAction	*action,
 						 TextView	*textview);
 static void copy_mail_to_uri_cb			(GtkAction	*action,
 						 TextView	*textview);
+static void search_public_key_cb		(GtkAction *action,
+						 TextView *textview);
 static void textview_show_tags(TextView *textview);
 
 static GtkActionEntry textview_link_popup_entries[] = 
@@ -245,10 +247,11 @@ static GtkActionEntry textview_link_popup_entries[] =
 static GtkActionEntry textview_mail_popup_entries[] = 
 {
 	{"TextviewPopupMail",			NULL, "TextviewPopupMail", NULL, NULL, NULL },
-	{"TextviewPopupMail/Compose",		NULL, N_("Compose _new message"), NULL, NULL, G_CALLBACK(mail_to_uri_cb) },
+	{"TextviewPopupMail/Compose",		NULL, N_("Write _new message"), NULL, NULL, G_CALLBACK(mail_to_uri_cb) },
 	{"TextviewPopupMail/ReplyTo",		NULL, N_("_Reply to this address"), NULL, NULL, G_CALLBACK(reply_to_uri_cb) },
 	{"TextviewPopupMail/AddAB",		NULL, N_("Add to _Address book"), NULL, NULL, G_CALLBACK(add_uri_to_addrbook_cb) },
-	{"TextviewPopupMail/Copy",		NULL, N_("Copy this add_ress"), NULL, NULL, G_CALLBACK(copy_mail_to_uri_cb) },
+	{"TextviewPopupMail/Copy",		NULL, N_("_Copy this address"), NULL, NULL, G_CALLBACK(copy_mail_to_uri_cb) },
+	{"TextviewPopupMail/LocatePK",		NULL, N_("Search for _PGP key"), NULL, NULL, G_CALLBACK(search_public_key_cb) },
 };
 
 static gboolean move_textview_image_cb (gpointer data)
@@ -371,6 +374,8 @@ TextView *textview_create(void)
 			"TextviewPopupMail",
 			textview_mail_popup_entries,
 			G_N_ELEMENTS(textview_mail_popup_entries), (gpointer)textview);
+	textview->search_key_action = cm_menu_find_action(textview->mail_action_group,
+			"TextviewPopupMail/LocatePK");
 
 	MENUITEM_ADDUI_MANAGER(textview->ui_manager, "/", "Menus", "Menus", GTK_UI_MANAGER_MENUBAR)
 	MENUITEM_ADDUI_MANAGER(textview->ui_manager, 
@@ -390,6 +395,8 @@ TextView *textview_create(void)
 			"/Menus/TextviewPopupMail", "AddAB", "TextviewPopupMail/AddAB", GTK_UI_MANAGER_MENUITEM)
 	MENUITEM_ADDUI_MANAGER(textview->ui_manager, 
 			"/Menus/TextviewPopupMail", "Copy", "TextviewPopupMail/Copy", GTK_UI_MANAGER_MENUITEM)
+	MENUITEM_ADDUI_MANAGER(textview->ui_manager,
+			"/Menus/TextviewPopupMail", "LocatePK", "TextviewPopupMail/LocatePK", GTK_UI_MANAGER_MENUITEM)
 
 	textview->link_popup_menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(
 				gtk_ui_manager_get_widget(textview->ui_manager, "/Menus/TextviewPopupLink")) );
@@ -705,10 +712,10 @@ static void textview_add_part(TextView *textview, MimeInfo *mimeinfo)
 	if (name == NULL)
 		name = procmime_mimeinfo_get_parameter(mimeinfo, "name");
 	if (name != NULL)
-		g_snprintf(buf, sizeof(buf), _("[%s  %s (%d bytes)]"),
+		g_snprintf(buf, sizeof(buf), _("[%s  %s (%ld bytes)]"),
 			   name, content_type, mimeinfo->length);
 	else
-		g_snprintf(buf, sizeof(buf), _("[%s (%d bytes)]"),
+		g_snprintf(buf, sizeof(buf), _("[%s (%ld bytes)]"),
 			   content_type, mimeinfo->length);
 
 	g_free(content_type);			   
@@ -964,7 +971,7 @@ void textview_show_mime_part(TextView *textview, MimeInfo *partinfo)
 	shortcut = cm_menu_item_get_shortcut(ui_manager, "Menu/File/SavePartAs");
 	TEXTVIEW_INSERT(shortcut);
 	g_free(shortcut);
-	TEXTVIEW_INSERT("')");
+	TEXTVIEW_INSERT(_("')"));
 #endif
 	TEXTVIEW_INSERT("\n");
 
@@ -976,7 +983,7 @@ void textview_show_mime_part(TextView *textview, MimeInfo *partinfo)
 	shortcut = cm_menu_item_get_shortcut(ui_manager, "Menu/View/Part/AsText");
 	TEXTVIEW_INSERT(shortcut);
 	g_free(shortcut);
-	TEXTVIEW_INSERT("')");
+	TEXTVIEW_INSERT(_("')"));
 #endif
 	TEXTVIEW_INSERT("\n");
 
@@ -988,7 +995,7 @@ void textview_show_mime_part(TextView *textview, MimeInfo *partinfo)
 	shortcut = cm_menu_item_get_shortcut(ui_manager, "Menu/View/Part/Open");
 	TEXTVIEW_INSERT(shortcut);
 	g_free(shortcut);
-	TEXTVIEW_INSERT("')\n");
+	TEXTVIEW_INSERT(_("')\n"));
 	TEXTVIEW_INSERT(_("       (alternately double-click, or click the middle "));
 	TEXTVIEW_INSERT(_("mouse button)\n"));
 #ifndef G_OS_WIN32
@@ -998,7 +1005,7 @@ void textview_show_mime_part(TextView *textview, MimeInfo *partinfo)
 	shortcut = cm_menu_item_get_shortcut(ui_manager, "Menu/View/Part/OpenWith");
 	TEXTVIEW_INSERT(shortcut);
 	g_free(shortcut);
-	TEXTVIEW_INSERT("')");
+	TEXTVIEW_INSERT(_("')"));
 #endif
 #endif
 	TEXTVIEW_INSERT("\n");
@@ -1017,7 +1024,8 @@ static void textview_write_body(TextView *textview, MimeInfo *mimeinfo)
 #endif
 	GSList *cur;
 	gboolean continue_write = TRUE;
-	size_t wrote = 0, i = 0;
+	glong wrote = 0, i = 0;
+	FolderItem *folder_item = NULL;
 
 	if (textview->messageview->forced_charset)
 		charset = textview->messageview->forced_charset;
@@ -1050,8 +1058,13 @@ static void textview_write_body(TextView *textview, MimeInfo *mimeinfo)
 
 	account_sigsep_matchlist_create();
 
+	if (textview->messageview->msginfo && textview->messageview->msginfo->folder)
+		folder_item = textview->messageview->msginfo->folder;
+
 	if (!g_ascii_strcasecmp(mimeinfo->subtype, "html") &&
-	    prefs_common.render_html) {
+	    ((folder_item && folder_item->prefs && folder_item->prefs->render_html == HTML_RENDER_ALWAYS)
+		|| ((folder_item && folder_item->prefs && folder_item->prefs->render_html == HTML_RENDER_DEFAULT)
+			&& prefs_common.render_html))) {
 		gchar *filename;
 		
 		filename = procmime_get_tmp_file_name(mimeinfo);
@@ -1088,7 +1101,7 @@ static void textview_write_body(TextView *textview, MimeInfo *mimeinfo)
 		if (procmime_get_part(fname, mimeinfo)) goto textview_default;
 
 		g_snprintf(buf, sizeof(buf), cmd, fname);
-		debug_print("Viewing text content of type: %s (length: %d) "
+		debug_print("Viewing text content of type: %s (length: %ld) "
 			"using %s\n", mimeinfo->subtype, mimeinfo->length, buf);
 
 		if (pipe(pfd) < 0) {
@@ -1173,7 +1186,7 @@ textview_default:
 			conv_code_converter_destroy(conv);
 			return;
 		}
-		debug_print("Viewing text content of type: %s (length: %d)\n", mimeinfo->subtype, mimeinfo->length);
+		debug_print("Viewing text content of type: %s (length: %ld)\n", mimeinfo->subtype, mimeinfo->length);
 		while (((i = ftell(tmpfp)) < mimeinfo->offset + mimeinfo->length) &&
 		       (claws_fgets(buf, sizeof(buf), tmpfp) != NULL)
 		       && continue_write) {
@@ -1995,7 +2008,9 @@ static void textview_show_avatar(TextView *textview)
 	MsgInfo *msginfo = textview->messageview->msginfo;
 	gint x, wx, wy;
 	AvatarRender *avatarr;
-	
+
+	cm_return_if_fail(msginfo);
+
 	if (prefs_common.display_header_pane || !prefs_common.display_xface)
 		goto bail;
 	
@@ -2043,11 +2058,14 @@ void textview_show_icon(TextView *textview, const gchar *stock_id)
 	GtkAllocation allocation;
 	GtkTextView *text = GTK_TEXT_VIEW(textview->text);
 	gint x, wx, wy;
+	gchar *img_sym = NULL;
 	
 	if (textview->image) 
 		gtk_widget_destroy(textview->image);
 	
-	textview->image = gtk_image_new_from_icon_name(stock_id, GTK_ICON_SIZE_DIALOG);
+	img_sym = g_strconcat(stock_id, "-symbolic", NULL);
+	textview->image = gtk_image_new_from_icon_name(img_sym, GTK_ICON_SIZE_DIALOG);
+	g_free(img_sym);
 	cm_return_if_fail(textview->image != NULL);
 
 	gtk_widget_set_name(GTK_WIDGET(textview->image), "textview_icon");
@@ -2076,6 +2094,8 @@ static void textview_save_contact_pic(TextView *textview)
 	gchar *filename = NULL;
 	GError *error = NULL;
 	GdkPixbuf *picture = NULL;
+
+	cm_return_if_fail(msginfo);
 
 	if (!msginfo->extradata || !msginfo->extradata->avatars)
 		return;
@@ -2114,6 +2134,8 @@ static void textview_show_contact_pic(TextView *textview)
 	GdkPixbuf *picture = NULL;
 	gint w, h;
 	GtkAllocation allocation;
+
+	cm_return_if_fail(msginfo);
 
 	if (prefs_common.display_header_pane
 		|| !prefs_common.display_xface)
@@ -2208,6 +2230,8 @@ static void textview_show_tags(TextView *textview)
 	ClickableText *uri;
 	GSList *cur, *orig;
 	gboolean found_tag = FALSE;
+
+	cm_return_if_fail(msginfo);
 	
 	if (!msginfo->tags)
 		return;
@@ -2418,10 +2442,14 @@ static gint textview_key_pressed(GtkWidget *widget, GdkEventKey *event,
 	case GDK_KEY_Down:
 	case GDK_KEY_Control_L:
 	case GDK_KEY_Control_R:
+	case GDK_KEY_KP_Down:
+	case GDK_KEY_KP_Up:
 		return FALSE;
 	case GDK_KEY_Home:
 	case GDK_KEY_End:
-		textview_scroll_max(textview,(event->keyval == GDK_KEY_Home));
+	case GDK_KEY_KP_Home:
+	case GDK_KEY_KP_End:
+		textview_scroll_max(textview,(event->keyval == GDK_KEY_Home || event->keyval == GDK_KEY_KP_Home));
 		return TRUE;
 	case GDK_KEY_space:
 		mod_pressed = ((event->state & (GDK_SHIFT_MASK|GDK_MOD1_MASK)) != 0);
@@ -2433,9 +2461,11 @@ static gint textview_key_pressed(GtkWidget *widget, GdkEventKey *event,
 				summary_select_next_unread(summaryview);
 		}
 		break;
+	case GDK_KEY_KP_Page_Down:
 	case GDK_KEY_Page_Down:
 		mimeview_scroll_page(messageview->mimeview, FALSE);
 		break;
+	case GDK_KEY_KP_Page_Up:
 	case GDK_KEY_Page_Up:
 	case GDK_KEY_BackSpace:
 		mimeview_scroll_page(messageview->mimeview, TRUE);
@@ -2994,6 +3024,10 @@ static gboolean textview_uri_button_pressed(GtkTextTag *tag, GObject *obj,
 				return FALSE;
 		} else if (!g_ascii_strncasecmp(uri->uri, "mailto:", 7)) {
 			if (bevent->button == 3) {
+				if (privacy_system_can_locate_keys())
+					gtk_action_set_visible(textview->search_key_action, TRUE);
+				else
+					gtk_action_set_visible(textview->search_key_action, FALSE);
 				g_object_set_data(
 					G_OBJECT(textview->mail_popup_menu),
 					"menu_button", uri);
@@ -3265,6 +3299,40 @@ static void mail_to_uri_cb (GtkAction *action, TextView *textview)
 		compose = compose_new(account, uri->uri + 7, NULL);
 	}
 	compose_check_for_email_account(compose);
+}
+
+static void search_public_key_cb(GtkAction *action, TextView *textview)
+{
+	if (!privacy_system_can_locate_keys()) {
+		/* should never happen */
+		alertpanel_error("None of enabled privacy plugins can search for keys.");
+		return;
+	}
+
+	main_window_cursor_wait(mainwindow_get_mainwindow());
+	textview_cursor_wait(textview);
+	GTK_EVENTS_FLUSH();
+
+	ClickableText *uri = g_object_get_data(G_OBJECT(textview->mail_popup_menu),
+					   "menu_button");
+	if (uri == NULL)
+		return;
+
+	gchar *email_address = g_strdup(uri->uri + 7); // skip "mailto:"
+	extract_address(email_address);
+
+	if (privacy_system_locate_key(email_address)) {
+		messageview_update(textview->messageview, NULL);
+		alertpanel_notice("The public key for %s is now available in your keyring.",
+				  email_address);
+	}
+	g_free(email_address);
+
+	g_object_set_data(G_OBJECT(textview->mail_popup_menu), "menu_button",
+			  NULL);
+
+	main_window_cursor_normal(mainwindow_get_mainwindow());
+	textview_cursor_normal(textview);
 }
 
 static void copy_mail_to_uri_cb	(GtkAction *action, TextView *textview)

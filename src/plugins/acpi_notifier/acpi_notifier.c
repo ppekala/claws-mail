@@ -1,11 +1,10 @@
 /*
  * acpi_notifier -- for Claws Mail
  *
- * Copyright (C) 2005-2019 Colin Leroy <colin@colino.net>
- * 	and the Claws Mail Team
+ * Copyright (C) 2005-2025 the Claws Mail Team and Colin Leroy
  *
- * Sylpheed is a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2019 Hiroyuki Yamamoto and the Claws Mail Team
+ * Claws Mail is a GTK based, lightweight, and fast e-mail client
+ * Copyright (C) 1999-2025 Hiroyuki Yamamoto and the Claws Mail Team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +73,7 @@ char *acpi_help[] = {
 	N_("Make sure that the kernel module 'asus_laptop' is loaded."),
 	N_("Make sure that the kernel module 'asus_acpi' is loaded."),
 	N_("Make sure that the kernel module 'ibm_acpi' is loaded."),
-	N_("Make sure that you have apanelc installed.\n"
+	N_("Make sure that you have 'apanelc' installed.\n"
 	    "You can get it from http://apanel.sourceforge.net/"),
 	NULL
 };
@@ -411,7 +410,7 @@ static void acpi_prefs_create_widget_func(PrefsPage * _page,
 
 	warning_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	
-	image = gtk_button_new_from_icon_name("dialog-warning",
+	image = gtk_button_new_from_icon_name("dialog-warning-symbolic",
 			GTK_ICON_SIZE_SMALL_TOOLBAR);
 	gtk_box_pack_start(GTK_BOX(warning_box), image, FALSE, FALSE, 0);
 	warning_label = gtk_label_new(

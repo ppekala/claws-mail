@@ -197,7 +197,7 @@ FeedItem *rssyl_parse_folder_item_file(gchar *path)
 				if (body)
 				{
 					g_warning("unexpected leading html tag found at line %d", i);
-				    g_string_free(body, TRUE);
+					g_string_free(body, TRUE);
 				}
 				body = g_string_new("");
 				i++;
@@ -270,7 +270,7 @@ static void rssyl_folder_read_existing_real(RFolderItem *ritem)
 	ritem->last_update = 0;
 
 	if( (dp = g_dir_open(path, 0, &error)) == NULL ) {
-		debug_print("g_dir_open on \"%s\" failed with error %d (%s)\n",
+		debug_print("RSSyl: g_dir_open on \"%s\" failed with error %d (%s)\n",
 				path, error->code, error->message);
 		g_error_free(error);
 		g_free(path);

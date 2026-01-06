@@ -43,6 +43,9 @@
 #include "procmsg.h"
 #include "codeconv.h"
 #include "timing.h"
+#ifdef G_OS_WIN32
+#include <windows.h>
+#endif
 #include "tags.h"
 #include "prefs_common.h"
 #include "file-utils.h"
@@ -697,9 +700,15 @@ MsgCache *msgcache_read_cache(FolderItem *item, const gchar *cache_file)
 
 				GET_CACHE_DATA(ref, memusage);
 
-				if (ref && *ref)
-					msginfo->references =
-						g_slist_prepend(msginfo->references, ref);
+				if (ref) {
+					if (*ref) {
+						msginfo->references =
+							g_slist_prepend(msginfo->references, ref);
+                    } else {
+						g_free(ref);
+						ref = NULL;
+					}
+                }
 			}
 			if (msginfo->references)
 				msginfo->references =
@@ -747,9 +756,15 @@ MsgCache *msgcache_read_cache(FolderItem *item, const gchar *cache_file)
 
 				READ_CACHE_DATA(ref, fp, memusage);
 
-				if (ref && *ref)
-					msginfo->references =
-						g_slist_prepend(msginfo->references, ref);
+				if (ref) {
+					if (*ref) {
+						msginfo->references =
+							g_slist_prepend(msginfo->references, ref);
+                    } else {
+						g_free(ref);
+						ref = NULL;
+					}
+                }
 			}
 			if (msginfo->references)
 				msginfo->references =
@@ -1234,7 +1249,7 @@ gint msgcache_write(const gchar *cache_file, const gchar *mark_file, const gchar
 	g_free(new_cache);
 	g_free(new_mark);
 	g_free(new_tags);
-	debug_print("done.\n");
+	debug_print("msgcache_write() done.\n");
 	END_TIMING();
 	return 0;
 }

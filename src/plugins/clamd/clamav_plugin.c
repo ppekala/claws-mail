@@ -117,8 +117,7 @@ static gboolean scan_func(GNode *node, gpointer data)
 						break;
 					case VIRUS: 
 						name = clamd_get_virus_name(buf.msg);
-						msg = g_strconcat(_("Detected %s virus."),
-							name, NULL);
+						msg = g_strconcat(_("Detected "), name, _(" virus."), NULL);
 						g_free(name);
 						g_warning("%s", msg);
 						debug_print("show_recv_err: %d\n", prefs_common_get_prefs()->show_recv_err_dialog);
@@ -339,19 +338,19 @@ const gchar *plugin_desc(void)
 	       "When a message attachment is found to contain a virus it can be "
 	       "deleted or saved in a specially designated folder.\n"
 	       "\n"
-	       "Because this plugin communicates with clamd via a\n"
-	       "socket then there are some minimum requirements to\n"
-	       "the permissions for your home folder and the\n"
-	       ".claws-mail folder provided the clamav-daemon is\n"
-	       "configured to communicate via a unix socket. All\n"
-	       "users at least need to be given execute permissions\n"
+	       "Because this plugin communicates with clamd via a "
+	       "socket then there are some minimum requirements to "
+	       "the permissions for your home folder and the "
+	       ".claws-mail folder provided the clamav-daemon is "
+	       "configured to communicate via a unix socket. All "
+	       "users at least need to be given execute permissions "
 	       "on these folders.\n"
 	       "\n"
-	       "To avoid changing permissions you could configure\n"
-	       "the clamav-daemon to communicate via a TCP socket\n"
+	       "To avoid changing permissions you could configure "
+	       "the clamav-daemon to communicate via a TCP socket "
 	       "and choose manual configuration for clamd.\n" 
 	       "\n"
-	       "Options can be found in /Configuration/Preferences/Plugins/Clam AntiVirus");
+	       "Options can be found in '/Configuration/Preferences/Plugins/Clam AntiVirus'.");
 }
 
 const gchar *plugin_type(void)
