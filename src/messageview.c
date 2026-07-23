@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2026 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -429,14 +429,10 @@ MessageView *messageview_create(MainWindow *mainwin)
 
 	messageview->vbox        = vbox;
 	messageview->new_window  = FALSE;
-	messageview->window      = NULL;
 	messageview->headerview  = headerview;
 	messageview->mimeview    = mimeview;
 	messageview->noticeview = noticeview;
 	messageview->mainwin    = mainwin;
-
-	messageview->statusbar     = NULL;
-	messageview->statusbar_cid = 0;
 
 	messageview->show_full_text= FALSE;
 	messageview->update_needed = FALSE;
@@ -3062,7 +3058,7 @@ void messageview_set_menu_sensitive(MessageView *messageview)
 	cm_menu_set_sensitive_full(messageview->ui_manager, "Menu/View/Goto/PrevHistory", messageview_nav_has_prev(messageview));
 	cm_menu_set_sensitive_full(messageview->ui_manager, "Menu/View/Goto/NextHistory", messageview_nav_has_next(messageview));
 
-	cm_menu_set_sensitive_full(messageview->ui_manager, "Menu/Message/CheckSignature", messageview->mimeview->signed_part);
+	cm_menu_set_sensitive_full(messageview->ui_manager, "Menu/Message/CheckSignature", messageview->mimeview->siginfo != NULL);
 }
 
 void messageview_learn (MessageView *msgview, gboolean is_spam)

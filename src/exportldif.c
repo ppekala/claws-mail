@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2003-2024 the Claws Mail team and Match Grun
+ * Copyright (C) 2003-2026 the Claws Mail team and Match Grun
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,15 +65,10 @@ static gchar *_attrName_EMail_ = "mail";
 ExportLdifCtl *exportldif_create( void ) {
 	ExportLdifCtl *ctl = g_new0( ExportLdifCtl, 1 );
 
-	ctl->path = NULL;
-	ctl->dirOutput = NULL;
-	ctl->fileLdif = NULL;
-	ctl->suffix = NULL;
 	ctl->rdnIndex = EXPORT_LDIF_ID_UID;
 	ctl->useDN = FALSE;
 	ctl->excludeEMail = TRUE;
 	ctl->retVal = MGU_SUCCESS;
-	ctl->rcCreate = 0;
 	ctl->settingsFile = g_strconcat(
 		get_rc_dir(), G_DIR_SEPARATOR_S, EXML_PROPFILE_NAME, NULL );
 

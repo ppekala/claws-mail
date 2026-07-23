@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2022 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2026 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -780,9 +780,6 @@ gint sock_connect_async(const gchar *hostname, gushort port,
 	conn_data->id = id++;
 	conn_data->hostname = g_strdup(hostname);
 	conn_data->port = port;
-	conn_data->addr_list = NULL;
-	conn_data->cur_addr = NULL;
-	conn_data->io_tag = 0;
 	conn_data->func = func;
 	conn_data->data = data;
 

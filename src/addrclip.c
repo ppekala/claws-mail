@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2002-2022 Match Grun and the Claws Mail team
+ * Copyright (C) 2002-2026 Match Grun and the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +67,6 @@ AddressClipboard *addrclip_create( void ) {
 
 	clipBoard = g_new0( AddressClipboard, 1 );
 	clipBoard->cutFlag = FALSE;
-	clipBoard->objectList = NULL;
 	return clipBoard;
 }
 

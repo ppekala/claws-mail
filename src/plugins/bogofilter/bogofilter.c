@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 the Claws Mail team and Colin Leroy
+ * Copyright (C) 1999-2026 the Claws Mail team and Colin Leroy
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -480,10 +480,6 @@ static gboolean mail_filtering_hook(gpointer source, gpointer data)
 	to_filter_data = g_new0(BogoFilterData, 1);
 	to_filter_data->msglist = msglist;
 	to_filter_data->mail_filtering_data = mail_filtering_data;
-	to_filter_data->new_hams = NULL;
-	to_filter_data->new_unsure = NULL;
-	to_filter_data->new_spams = NULL;
-	to_filter_data->whitelisted_new_spams = NULL;
 	to_filter_data->done = FALSE;
 	to_filter_data->status = -1;
 	to_filter_data->bogo_args = bogo_args;

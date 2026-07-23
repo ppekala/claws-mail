@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Andrej Kacian <andrej@kacian.sk>
+ * Copyright (C) 2012-2026 the Claws Mail team and Andrej Kacian <andrej@kacian.sk>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -100,7 +100,6 @@ GSList *rssyl_old_feed_metadata_parse(gchar *filepath)
 	parser = XML_ParserCreate(NULL);
 
 	ctx = g_new0(struct _oldrssyl_ctx, 1);
-	ctx->oldfeeds = NULL;
 	XML_SetUserData(parser, ctx);
 	XML_SetElementHandler(parser,
 			_elparse_start_oldrssyl,

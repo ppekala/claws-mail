@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2005-2023 the Claws Mail Team and Andrej Kacian <andrej@kacian.sk>
+ * Copyright (C) 2005-2026 the Claws Mail Team and Andrej Kacian <andrej@kacian.sk>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,6 @@ FeedItem *rssyl_parse_folder_item_file(gchar *path)
 
 	ctx = g_new0(RFeedCtx, 1);
 	ctx->path = g_strdup(path); /* store filesystem path to source file */
-	ctx->last_seen = 0;
 
 	item = feed_item_new(NULL);
 	item->data = ctx;

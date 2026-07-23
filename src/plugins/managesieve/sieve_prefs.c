@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2004-2015 the Claws Mail team
+ * Copyright (C) 2004-2026 the Claws Mail team
  * Copyright (C) 2014-2015 Charles Lehner
  *
  * This program is free software; you can redistribute it and/or modify
@@ -489,13 +489,11 @@ struct SieveAccountConfig *sieve_prefs_account_get_config(
 
 	config->enable = FALSE;
 	config->use_host = FALSE;
-	config->host = NULL;
 	config->use_port = FALSE;
 	config->port = 4190;
 	config->tls_type = SIEVE_TLS_YES;
 	config->auth = SIEVEAUTH_REUSE;
 	config->auth_type = SIEVEAUTH_AUTO;
-	config->userid = NULL;
 
 	confstr = prefs_account_get_privacy_prefs(account, "sieve");
 	if (confstr == NULL)

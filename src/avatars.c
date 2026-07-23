@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2014-2016 Ricardo Mones and the Claws Mail team
+ * Copyright (C) 2014-2026 Ricardo Mones and the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,8 +38,6 @@ AvatarRender *avatars_avatarrender_new(MsgInfo *msginfo)
 {
 	AvatarRender *ar = g_new0(AvatarRender, 1);
 	ar->full_msginfo = msginfo;
-	ar->image = NULL;
-	ar->type = 0;
 
 	return ar;
 }

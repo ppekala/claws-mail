@@ -1,7 +1,7 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
  *
- * Copyright (C) 2000-2024 the Claws Mail team and Alfons Hoogervorst
+ * Copyright (C) 2000-2026 the Claws Mail team and Alfons Hoogervorst
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -849,11 +849,6 @@ static CompletionWindow *addrcompl_create_window( void ) {
 	CompletionWindow *cw;
 
 	cw = g_new0( CompletionWindow, 1 );
-	cw->listCount = 0;
-	cw->searchTerm = NULL;
-	cw->window = NULL;
-	cw->entry = NULL;
-	cw->list_view = NULL;
 	cw->in_mouse = FALSE;
 	cw->destroying = FALSE;
 

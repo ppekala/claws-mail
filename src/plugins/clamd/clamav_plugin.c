@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2003-2024 Michael Rasmussen and the Claws Mail Team
+ * Copyright (C) 2003-2026 Michael Rasmussen and the Claws Mail Team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,7 +117,7 @@ static gboolean scan_func(GNode *node, gpointer data)
 						break;
 					case VIRUS: 
 						name = clamd_get_virus_name(buf.msg);
-						msg = g_strconcat(_("Detected "), name, _(" virus."), NULL);
+						msg = g_strdup_printf(_("Detected %s virus."), name);
 						g_free(name);
 						g_warning("%s", msg);
 						debug_print("show_recv_err: %d\n", prefs_common_get_prefs()->show_recv_err_dialog);

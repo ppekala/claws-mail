@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 the Claws Mail team and Colin Leroy
+ * Copyright (C) 1999-2026 the Claws Mail team and Colin Leroy
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -815,9 +815,6 @@ QuickSearch *quicksearch_new()
 	quicksearch->active = FALSE;
 	quicksearch->running = FALSE;
 	quicksearch->in_typing = FALSE;
-	quicksearch->press_timeout_id = 0;
-	quicksearch->normal_search_strings = NULL;
-	quicksearch->extended_search_strings = NULL;
 
 	/* quick search */
 	hbox_search = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -990,9 +987,6 @@ QuickSearch *quicksearch_new()
 	quicksearch->running = FALSE;
 	quicksearch->clear_search = clear_search;
 	quicksearch->in_typing = FALSE;
-	quicksearch->press_timeout_id = 0;
-	quicksearch->normal_search_strings = NULL;
-	quicksearch->extended_search_strings = NULL;
 
 	quicksearch_set_button(GTK_BUTTON(quicksearch->search_description), "dialog-information-symbolic",
 			       _("_Information"));

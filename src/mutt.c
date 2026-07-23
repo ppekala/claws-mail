@@ -1,7 +1,7 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2001-2012 Match Grun and the Claws Mail team
- *
+ * Copyright (C) 2001-2026 the Claws Mail team and Match Grun
+ * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
@@ -45,11 +45,8 @@
 MuttFile *mutt_create() {
 	MuttFile *muttFile;
 	muttFile = g_new0( MuttFile, 1 );
-	muttFile->path = NULL;
-	muttFile->file = NULL;
 	muttFile->retVal = MGU_SUCCESS;
 	muttFile->uniqTable = g_hash_table_new( g_str_hash, g_str_equal );
-	muttFile->cbProgress = NULL;
 	return muttFile;
 }
 

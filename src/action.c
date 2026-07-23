@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 the Claws Mail Team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2026 the Claws Mail Team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -849,7 +849,6 @@ static gboolean execute_actions(gchar *action, GSList *msg_list,
 
 	children = g_new0(Children, 1);
 
-	children->nb          = 0;
 	children->action      = g_strdup(action);
 	children->action_type = action_type;
 	children->msg_text    = text;

@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2024 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2026 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1329,11 +1329,9 @@ HeaderEntry *procheader_entries_from_str(const gchar *str)
 	he = entries;
 	while (names[i]) {
 		he->name = g_strdup_printf("%s:", names[i]);
-		he->body = NULL;
 		he->unfold = FALSE;
 		++i, ++he;
 	}
-	he->name = NULL;
 	g_strfreev(names);
 	return entries;
 }

@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2026 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -161,7 +161,7 @@ static GtkWidget *about_create_child_page_info(void)
 				NULL);
 #ifdef GENERIC_UMPC
 	ADD_TEXT("\n\n");
-	ADD_TEXT(_("Copyright (C) 1999-2025\nThe Claws Mail Team\n"
+	ADD_TEXT(_("Copyright (C) 1999-2026\nThe Claws Mail Team\n"
 				"and Hiroyuki Yamamoto"));
 #endif
 	ADD_TEXT("\n\n");
@@ -553,6 +553,7 @@ static GtkWidget *about_create_child_page_license(void)
 	GtkTextIter iter;
 	GdkRGBA uri_color;
 	GtkTextTag *tag;
+	gchar *str;
 
 	scrolledwin = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwin),
@@ -597,9 +598,11 @@ static GtkWidget *about_create_child_page_license(void)
 		"underline", PANGO_UNDERLINE_SINGLE,
 		NULL);
 
-	gtk_text_buffer_insert(buffer, &iter, g_strconcat(
+	str = g_strconcat(
 		_("You should have received a copy of the GNU General Public License "
-		  "along with this program. If not, see "), "<", NULL), -1);
+		  "along with this program. If not, see "), "<", NULL);
+	gtk_text_buffer_insert(buffer, &iter, str , -1);
+	g_free(str);
 	gtk_text_buffer_insert_with_tags_by_name(buffer, &iter, 
 		"http://www.gnu.org/licenses/", -1,
 		"link", NULL);
@@ -888,7 +891,7 @@ static void about_create(void)
 	gtk_container_add(GTK_CONTAINER(grid2), button);
 #ifndef GENERIC_UMPC
 	label = gtk_label_new
-		(_("Copyright (C) 1999-2025\nThe Claws Mail Team\n"
+		(_("Copyright (C) 1999-2026\nThe Claws Mail Team\n"
 		 "and Hiroyuki Yamamoto"));
 	gtk_label_set_selectable(GTK_LABEL(label), TRUE);
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);

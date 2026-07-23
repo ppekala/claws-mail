@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2026 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -225,6 +225,8 @@ static void open_uri_cb				(GtkAction	*action,
 						 TextView	*textview);
 static void copy_uri_cb				(GtkAction	*action,
 						 TextView	*textview);
+static void copy_clean_uri_cb			(GtkAction	*action,
+						 TextView	*textview);
 static void add_uri_to_addrbook_cb 		(GtkAction	*action,
 						 TextView	*textview);
 static void reply_to_uri_cb 			(GtkAction	*action,
@@ -241,7 +243,8 @@ static GtkActionEntry textview_link_popup_entries[] =
 {
 	{"TextviewPopupLink",			NULL, "TextviewPopupLink", NULL, NULL, NULL },
 	{"TextviewPopupLink/Open",		NULL, N_("_Open in web browser"), NULL, NULL, G_CALLBACK(open_uri_cb) },
-	{"TextviewPopupLink/Copy",		NULL, N_("Copy this _link"), NULL, NULL, G_CALLBACK(copy_uri_cb) },
+	{"TextviewPopupLink/Copy",		NULL, N_("Copy _link"), NULL, NULL, G_CALLBACK(copy_uri_cb) },
+	{"TextviewPopupLink/CleanCopy",		NULL, N_("Copy _clean link"), NULL, NULL, G_CALLBACK(copy_clean_uri_cb) },
 };
 
 static GtkActionEntry textview_mail_popup_entries[] = 
@@ -388,6 +391,8 @@ TextView *textview_create(void)
 	MENUITEM_ADDUI_MANAGER(textview->ui_manager, 
 			"/Menus/TextviewPopupLink", "Copy", "TextviewPopupLink/Copy", GTK_UI_MANAGER_MENUITEM)
 	MENUITEM_ADDUI_MANAGER(textview->ui_manager, 
+			"/Menus/TextviewPopupLink", "CleanCopy", "TextviewPopupLink/CleanCopy", GTK_UI_MANAGER_MENUITEM)
+	MENUITEM_ADDUI_MANAGER(textview->ui_manager, 
 			"/Menus/TextviewPopupMail", "Compose", "TextviewPopupMail/Compose", GTK_UI_MANAGER_MENUITEM)
 	MENUITEM_ADDUI_MANAGER(textview->ui_manager, 
 			"/Menus/TextviewPopupMail", "ReplyTo", "TextviewPopupMail/ReplyTo", GTK_UI_MANAGER_MENUITEM)
@@ -406,10 +411,7 @@ TextView *textview_create(void)
 	textview->vbox               = vbox;
 	textview->scrolledwin        = scrolledwin;
 	textview->text               = text;
-	textview->uri_list           = NULL;
-	textview->body_pos           = 0;
 	textview->last_buttonpress   = GDK_NOTHING;
-	textview->image		     = NULL;
 	return textview;
 }
 
@@ -654,6 +656,7 @@ static void textview_add_part(TextView *textview, MimeInfo *mimeinfo)
 	const gchar *name;
 	gchar *content_type;
 	gint charcount;
+	FolderItem *folder_item = NULL;
 
 	START_TIMING("");
 
@@ -692,11 +695,14 @@ static void textview_add_part(TextView *textview, MimeInfo *mimeinfo)
 		}
 		headers = textview_scan_header(textview, fp);
 		if (headers) {
+			if (textview->messageview->msginfo && textview->messageview->msginfo->folder)
+				folder_item = textview->messageview->msginfo->folder;
 			if (charcount > 0)
 				gtk_text_buffer_insert(buffer, &iter, "\n", 1);
 			
 			if (procmime_mimeinfo_parent(mimeinfo) == NULL &&
-			    !prefs_common.display_header_pane)
+			    !prefs_common.display_header_pane &&
+			    (folder_item && folder_item->prefs && folder_item->prefs->show_tags))
 				textview_show_tags(textview);
 			textview_show_header(textview, headers);
 			procheader_header_array_destroy(headers);
@@ -1449,7 +1455,6 @@ static void textview_make_clickable_parts(TextView *textview,
 				(buffer, &iter, last->bp, last->ep - last->bp,
 				 uri_tag, fg_tag, NULL);
 			uri->end = gtk_text_iter_get_offset(&iter);
-			uri->filename = NULL;
 			textview->uri_list =
 				g_slist_prepend(textview->uri_list, uri);
 		}
@@ -1581,7 +1586,6 @@ static void textview_make_clickable_parts_later(TextView *textview,
 			gtk_text_buffer_apply_tag_by_name(buffer, "link", &start_iter, &end_iter);
 
 			uri->end = gtk_text_iter_get_offset(&end_iter);
-			uri->filename = NULL;
 			textview->uri_list =
 				g_slist_prepend(textview->uri_list, uri);
 		}
@@ -1696,8 +1700,7 @@ do_quote:
 					 "qlink", fg_color, NULL);
 			uri->end = gtk_text_iter_get_offset(&iter);
 			gtk_text_buffer_insert(buffer, &iter, "  \n", -1);
-			
-			uri->filename = NULL;
+
 			textview->uri_list =
 				g_slist_prepend(textview->uri_list, uri);
 		
@@ -1781,7 +1784,6 @@ void textview_write_link(TextView *textview, const gchar *str,
 	gtk_text_buffer_insert_with_tags_by_name
 		(buffer, &iter, bufp, -1, "link", NULL);
 	r_uri->end = gtk_text_iter_get_offset(&iter);
-	r_uri->filename = NULL;
 	textview->uri_list = g_slist_prepend(textview->uri_list, r_uri);
 }
 
@@ -2266,7 +2268,6 @@ static void textview_show_tags(TextView *textview)
 			"link", "header", "tags", NULL);
 		uri->end = gtk_text_iter_get_offset(&iter);
 		uri->filename = g_strdup_printf("cm://search_tags:%s", cur_tag);
-		uri->data = NULL;
 		textview->uri_list =
 			g_slist_prepend(textview->uri_list, uri);
 		if (cur->next && tags_get_tag(GPOINTER_TO_INT(cur->next->data)))
@@ -2366,7 +2367,8 @@ static void textview_show_header(TextView *textview, GPtrArray *headers)
 	textview_show_avatar(textview);
 	if (prefs_common.save_xface)
 		textview_save_contact_pic(textview);
-	textview_show_contact_pic(textview);
+	if (prefs_common.show_contact_pic)
+		textview_show_contact_pic(textview);
 }
 
 gboolean textview_search_string(TextView *textview, const gchar *str,
@@ -3220,6 +3222,24 @@ static void copy_uri_cb	(GtkAction *action, TextView *textview)
 	}
 }
 
+static void copy_clean_uri_cb	(GtkAction *action, TextView *textview)
+{
+	ClickableText *uri = g_object_get_data(G_OBJECT(textview->link_popup_menu),
+					   "menu_button");
+
+	if (uri) {
+		gchar **uri_parts = g_strsplit(uri->uri, "?", 2);
+		const gchar *clean_uri = uri_parts[0];
+
+		if (textview_uri_security_check(textview, uri, TRUE) == TRUE) {
+			gtk_clipboard_set_text(gtk_clipboard_get(GDK_SELECTION_PRIMARY), clean_uri, -1);
+			gtk_clipboard_set_text(gtk_clipboard_get(GDK_SELECTION_CLIPBOARD), clean_uri, -1);
+			g_object_set_data(G_OBJECT(textview->link_popup_menu), "menu_button", NULL);
+		}
+		g_strfreev(uri_parts);
+	}
+}
+
 static void add_uri_to_addrbook_cb (GtkAction *action, TextView *textview)
 {
 	gchar *fromname, *fromaddress;
@@ -3323,8 +3343,6 @@ static void search_public_key_cb(GtkAction *action, TextView *textview)
 
 	if (privacy_system_locate_key(email_address)) {
 		messageview_update(textview->messageview, NULL);
-		alertpanel_notice("The public key for %s is now available in your keyring.",
-				  email_address);
 	}
 	g_free(email_address);
 

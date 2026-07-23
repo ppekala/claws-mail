@@ -1,7 +1,7 @@
 /*
  * PGP/Core keyring autocompletion
  *
- * Copyright (C) 2014-2025 the Claws Mail team and Christian Hesse <mail@eworm.de>
+ * Copyright (C) 2014-2026 the Claws Mail team and Christian Hesse <mail@eworm.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,10 +82,7 @@ static gboolean pgp_autocompletion_hook(gpointer source, gpointer data)
 						if (uid->name != NULL && *uid->name != 0) {
 							ae->name = g_strdup(uid->name);
 							addr_compl_add_address1(ae->name, ae);
-						} else
-							ae->name = NULL;
-
-						ae->grp_emails = NULL;
+						}
 
 						addr_list = g_list_prepend(addr_list, ae);
 

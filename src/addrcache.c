@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2001-2012 Match Grun and the Claws Mail team
+ * Copyright (C) 2001-2026 Match Grun and the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,8 +65,6 @@ AddressCache *addrcache_create() {
 	cache->modified = FALSE;
 	cache->dirtyFlag = FALSE;
 	cache->accessFlag = FALSE;
-	cache->name = NULL;
-	cache->modifyTime = 0;
 
 	/* Generate the next ID using system time */
 	cache->nextID = 1;
@@ -75,7 +73,6 @@ AddressCache *addrcache_create() {
 		cache->nextID = t - ID_TIME_OFFSET;
 	}
 
-	cache->tempList = NULL;
 	cache->rootFolder = addritem_create_item_folder();
 	cache->rootFolder->isRoot = TRUE;
 	ADDRITEM_PARENT(cache->rootFolder) = NULL;

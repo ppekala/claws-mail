@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2002-2024 the Claws Mail team and Match Grun
+ * Copyright (C) 2002-2026 the Claws Mail team and Match Grun
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -113,9 +113,6 @@ static void exporthtml_build_entry(
 ExportHtmlCtl *exporthtml_create( void ) {
 	ExportHtmlCtl *ctl = g_new0( ExportHtmlCtl, 1 );
 
-	ctl->path = NULL;
-	ctl->dirOutput = NULL;
-	ctl->fileHtml = NULL;
 	ctl->encoding = g_strconcat(CHAR_ENCODING, NULL);
 	ctl->stylesheet = EXPORT_HTML_ID_NONE;
 	ctl->nameFormat = EXPORT_HTML_FIRST_LAST;
@@ -123,8 +120,6 @@ ExportHtmlCtl *exporthtml_create( void ) {
 	ctl->linkEMail = FALSE;
 	ctl->showAttribs = FALSE;
 	ctl->retVal = MGU_SUCCESS;
-	ctl->listStyle = NULL;
-	ctl->rcCreate = 0;
 	ctl->settingsFile = g_strconcat(
 		get_rc_dir(), G_DIR_SEPARATOR_S, EXML_PROPFILE_NAME, NULL );
 

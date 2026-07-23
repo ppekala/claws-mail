@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2006-2023 the Claws Mail Team and Andrej Kacian <andrej@kacian.sk>
+ * Copyright (C) 2006-2026 the Claws Mail Team and Andrej Kacian <andrej@kacian.sk>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -203,13 +203,7 @@ void rssyl_update_format()
 
 	/* We find all rssyl root folders and perform magic on each */
 	ctx = g_new0(RUpdateFormatCtx, 1);
-	ctx->o_prev = NULL;
-	ctx->o_parent = NULL;
-	ctx->n_prev = NULL;
-	ctx->n_parent = NULL;
-	ctx->n_first = NULL;
 	ctx->oldfeeds = oldfeeds;
-	ctx->oldroots = NULL;
 	ctx->reached_first_new = FALSE;
 
 	folder_item_update_freeze();

@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2012-2023 the Claws Mail team
+ * Copyright (C) 2012-2026 the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,11 +72,7 @@ static gboolean search_impl(MsgInfoList **messages, AdvancedSearch* search,
 
 AdvancedSearch* advsearch_new()
 {
-	AdvancedSearch *result;
-
-	result = g_new0(AdvancedSearch, 1);
-
-	return result;
+	return g_new0(AdvancedSearch, 1);
 }
 
 void advsearch_free(AdvancedSearch *search)

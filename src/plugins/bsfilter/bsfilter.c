@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 the Claws Mail team and Colin Leroy
+ * Copyright (C) 1999-2026 the Claws Mail team and Colin Leroy
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -293,7 +293,6 @@ static gboolean mail_filtering_hook(gpointer source, gpointer data)
 	to_filter_data->mail_filtering_data = mail_filtering_data;
 	to_filter_data->done = FALSE;
 	to_filter_data->status = -1;
-	to_filter_data->whitelisted = 0;
 #ifdef USE_PTHREAD
 	to_filter_data->in_thread = (filter_th_started != 0);
 #else

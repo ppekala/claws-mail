@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2003-2012 Match Grun and the Claws Mail team
+ * Copyright (C) 2003-2026 Match Grun and the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -123,7 +123,6 @@ QueryRequest *qrymgr_add_request(
 	req->callBackEnd = callBackEnd;
 	req->callBackEntry = callBackEntry;
 	req->timeStart = time( NULL );
-	req->queryList = NULL;
 
 	/* Insert in head of list */
 	pthread_mutex_lock( & _requestListMutex_ );

@@ -3,7 +3,7 @@
  *
  * @Copyright (C) 2004-2006 Christian Hammond.
  * Some of this code is from gtkspell, Copyright (C) 2002 Evan Martin.
- * Adapted for Claws Mail (c) 2009-2012 Pawel Pekala and the Claws Mail team
+ * Adapted for Claws Mail (c) 2009-2026 Pawel Pekala and the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,8 +99,7 @@ static void claws_spell_entry_init(ClawsSpellEntry *entry)
 	
 	entry->priv = g_new0(ClawsSpellEntryPriv, 1);
 	entry->priv->attr_list = pango_attr_list_new();
-	entry->priv->preedit_length = 0;
-                                        
+
 	g_signal_connect(G_OBJECT(entry), "popup-menu",
 			G_CALLBACK(claws_spell_entry_popup_menu), entry);
 	g_signal_connect(G_OBJECT(entry), "populate-popup",

@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2026 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,7 +73,6 @@ MimeInfo *procmime_mimeinfo_new(void)
 	mimeinfo = g_new0(MimeInfo, 1);
 
 	mimeinfo->content	 = MIMECONTENT_EMPTY;
-	mimeinfo->data.filename	 = NULL;
 
 	mimeinfo->type     	 = MIMETYPE_UNKNOWN;
 	mimeinfo->encoding_type  = ENC_UNKNOWN;

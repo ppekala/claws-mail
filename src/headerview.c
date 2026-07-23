@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2026 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,7 +139,6 @@ HeaderView *headerview_create(void)
 	headerview->subject_body_label   = subject_body_label;
 	headerview->tags_header_label = tags_header_label;
 	headerview->tags_body_label   = tags_body_label;
-	headerview->image = NULL;
 
 	gtk_widget_show_all(hbox);
 

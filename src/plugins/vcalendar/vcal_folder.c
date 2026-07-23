@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 the Claws Mail team and Colin Leroy <colin@colino.net>
+ * Copyright (C) 1999-2026 the Claws Mail team and Colin Leroy <colin@colino.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -536,7 +536,11 @@ static gint feed_fetch(FolderItem *fitem, MsgNumberList ** list, gboolean *old_u
 	while (evt) {
 		icalproperty *prop;
 		icalproperty *rprop = icalcomponent_get_first_property(evt, ICAL_RRULE_PROPERTY);
+#if ICAL_CHECK_VERSION(4, 0, 0)
+		struct icalrecurrencetype* recur;
+#else
 		struct icalrecurrencetype recur;
+#endif
         	struct icaltimetype next;
         	icalrecur_iterator* ritr = NULL;
 		EventTime days;
@@ -559,7 +563,12 @@ static gint feed_fetch(FolderItem *fitem, MsgNumberList ** list, gboolean *old_u
 			gchar *orig_uid = NULL;
 			gchar *uid = g_strdup(icalproperty_get_uid(prop));
 			IcalFeedData *data = icalfeeddata_new(
-						icalcomponent_new_clone(evt), NULL);
+#if ICAL_CHECK_VERSION(4, 0, 0)
+						icalcomponent_clone(evt),
+#else
+						icalcomponent_new_clone(evt),
+#endif
+						NULL);
 			int i = 0;
 			orig_uid = g_strdup(uid);
 
@@ -610,7 +619,11 @@ add_new:
 				struct icaldurationtype ical_dur;
 				struct icaltimetype dtstart = icaltime_null_time();
 				struct icaltimetype dtend = icaltime_null_time();
+#if ICAL_CHECK_VERSION(4, 0, 0)
+				evt = icalcomponent_clone(evt);
+#else
 				evt = icalcomponent_new_clone(evt);
+#endif
 				prop = icalcomponent_get_first_property(evt, ICAL_RRULE_PROPERTY);
 				if (prop) {
 					icalcomponent_remove_property(evt, prop);
@@ -626,7 +639,11 @@ add_new:
 					dtend = icalproperty_get_dtend(prop);
 				else
 					debug_print("event has no DTEND!\n");
+#if ICAL_CHECK_VERSION(4, 0, 0)
+				ical_dur = icalduration_from_times(dtend, dtstart);
+#else
 				ical_dur = icaltime_subtract(dtend, dtstart);
+#endif
 				next = icalrecur_iterator_next(ritr);
 				if (!icaltime_is_null_time(next) &&
 				    !icaltime_is_null_time(dtstart) && i < 100) {
@@ -635,8 +652,11 @@ add_new:
 
 					prop = icalcomponent_get_first_property(evt, ICAL_DTEND_PROPERTY);
 					if (prop)
+#if ICAL_CHECK_VERSION(4, 0, 0)
+						icalproperty_set_dtend(prop, icalduration_extend(next, ical_dur));
+#else
 						icalproperty_set_dtend(prop, icaltime_add(next, ical_dur));
-
+#endif
 					prop = icalcomponent_get_first_property(evt, ICAL_UID_PROPERTY);
 					uid = g_strdup_printf("%s-%d", orig_uid, i);
 					icalproperty_set_uid(prop, uid);
@@ -770,7 +790,11 @@ GSList *vcal_get_events_list(FolderItem *item)
 			if ((status == ICAL_PARTSTAT_ACCEPTED
 			     || status == ICAL_PARTSTAT_TENTATIVE) 
 			    && event->recur && *(event->recur)) {
+#if ICAL_CHECK_VERSION(4, 0, 0)
+				struct icalrecurrencetype* recur;
+#else
         			struct icalrecurrencetype recur;
+#endif
         			struct icaltimetype dtstart;
         			struct icaltimetype next;
         			icalrecur_iterator* ritr;
@@ -779,14 +803,21 @@ GSList *vcal_get_events_list(FolderItem *item)
 				int i = 0;
 
 				debug_print("dumping recurring events from main event %s\n", d);
+#if ICAL_CHECK_VERSION(4, 0, 0)
+				recur = icalrecurrencetype_new_from_string(event->recur);
+#else
         			recur = icalrecurrencetype_from_string(event->recur);
+#endif
 				dtstart = icaltime_from_string(event->dtstart);
 
 				duration = icaltime_as_timet(icaltime_from_string(event->dtend))
 							    - icaltime_as_timet(icaltime_from_string(event->dtstart));
 
+#if ICAL_CHECK_VERSION(4, 0, 0)
+				ical_dur = icaldurationtype_from_seconds(duration);
+#else
 				ical_dur = icaldurationtype_from_int(duration);
-
+#endif
         			ritr = icalrecur_iterator_new(recur, dtstart);
 
 				next = icalrecur_iterator_next(ritr); /* skip first one */
@@ -799,7 +830,12 @@ GSList *vcal_get_events_list(FolderItem *item)
 					gchar *uid = g_strdup_printf("%s-%d", event->uid, i);
 					new_start = icaltime_as_ical_string(next);
 					new_end = icaltime_as_ical_string(
-							icaltime_add(next, ical_dur));
+#if ICAL_CHECK_VERSION(4, 0, 0)
+							icalduration_extend(next, ical_dur)
+#else
+							icaltime_add(next, ical_dur)
+#endif
+							);
 					debug_print("adding with start/end %s:%s\n", new_start, new_end);
 					nevent = vcal_manager_new_event(uid, event->organizer, event->orgname, 
 								event->location, event->summary, event->description, 
@@ -825,6 +861,9 @@ GSList *vcal_get_events_list(FolderItem *item)
 					i++;
 				}
 				icalrecur_iterator_free(ritr);
+#if ICAL_CHECK_VERSION(4, 0, 0)
+				icalrecurrencetype_unref(recur);
+#endif
 			}
 		} else {
 			vcal_manager_free_event(event);
@@ -1389,7 +1428,6 @@ GSList * vcal_folder_get_webcal_events(void)
 	GetWebcalData *data = g_new0(GetWebcalData, 1);
 	Folder *folder = folder_find_from_name (PLUGIN_NAME, vcal_folder_get_class());
 	GSList *list = NULL;
-	data->item = NULL;
 	g_node_traverse(folder->node, G_PRE_ORDER,
 			G_TRAVERSE_ALL, -1, get_webcal_events_func, data);
 
@@ -2380,7 +2418,11 @@ VCalEvent *vcal_get_event_from_ical(const gchar *ical, const gchar *charset)
 			if (prop) {
 				itt = icalproperty_get_dtstart(prop);
 				icalproperty_free(prop);
+#if ICAL_CHECK_VERSION(4, 0, 0)
+				dtend = g_strdup(icaltime_as_ical_string(icalduration_extend(itt,duration)));
+#else
 				dtend = g_strdup(icaltime_as_ical_string(icaltime_add(itt,duration)));
+#endif
 				TO_UTF8(dtend);
 			}
 		}
@@ -2435,8 +2477,13 @@ VCalEvent *vcal_get_event_from_ical(const gchar *ical, const gchar *charset)
 	}
 	GET_PROP(comp, prop, ICAL_RRULE_PROPERTY);
 	if (prop) {
+#if ICAL_CHECK_VERSION(4, 0, 0)
+		struct icalrecurrencetype* rrule = icalproperty_get_rrule(prop);
+		recur = g_strdup(icalrecurrencetype_as_string(rrule));		
+#else
 		struct icalrecurrencetype rrule = icalproperty_get_rrule(prop);
 		recur = g_strdup(icalrecurrencetype_as_string(&rrule));
+#endif
 		TO_UTF8(recur);
 		icalproperty_free(prop);
 	}

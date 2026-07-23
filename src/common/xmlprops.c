@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2002-2012 Match Grun and the Claws Mail team
+ * Copyright (C) 2002-2026 the Claws Mail team and Match Grun
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,8 +69,6 @@ XmlProperty *xmlprops_create( void ) {
 	XmlProperty *props;
 
 	props = g_new0( XmlProperty, 1 );
-	props->path = NULL;
-	props->encoding = NULL;
 	props->propertyTable = g_hash_table_new( g_str_hash, g_str_equal );
 	props->retVal = MGU_SUCCESS;
 	return props;

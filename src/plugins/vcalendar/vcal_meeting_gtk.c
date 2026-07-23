@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 Colin Leroy <colin@colino.net> and
+ * Copyright (C) 1999-2026 Colin Leroy <colin@colino.net> and
  * the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
@@ -1343,6 +1343,7 @@ static VCalMeeting *vcal_meeting_create_real(VCalEvent *event, gboolean visible)
 	int i = 0, num = 0;
 	GtkWidget *scrolledwin;
 	GList *accounts;
+	gchar *str;
 #ifdef GENERIC_UMPC
 	GtkWidget *notebook;
 	GtkWidget *maemo_vbox0;
@@ -1388,7 +1389,6 @@ static VCalMeeting *vcal_meeting_create_real(VCalEvent *event, gboolean visible)
 		meet->uid = g_strdup(event->uid);
 		meet->sequence = event->sequence + 1;
 		meet->created = event->created ? g_strdup(event->created) : NULL;
-		meet->last_modified = NULL; /* Make sure to update modification time */
 
 		meet->method = (event->method == ICAL_METHOD_CANCEL ?
 				ICAL_METHOD_CANCEL:ICAL_METHOD_REQUEST);
@@ -1494,13 +1494,17 @@ static VCalMeeting *vcal_meeting_create_real(VCalEvent *event, gboolean visible)
 	date_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 	date_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
-	label = gtk_label_new(g_strconcat("<b>",_("Starts at:"),"</b> ",NULL));
+	str = g_strconcat("<b>",_("Starts at:"),"</b> ",NULL);
+	label = gtk_label_new(str);
+	g_free(str);
 	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), meet->start_time, FALSE, FALSE, 0);
-	label = gtk_label_new(g_strconcat("<b> ",_("on:"),"</b>",NULL));
+	str = g_strconcat("<b> ",_("on:"),"</b>",NULL);
+	label = gtk_label_new(str);
+	g_free(str);
 	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
@@ -1518,13 +1522,17 @@ static VCalMeeting *vcal_meeting_create_real(VCalEvent *event, gboolean visible)
 
 	date_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
-	label = gtk_label_new(g_strconcat("<b>",_("Ends at:"),"</b> ", NULL));
+	str = g_strconcat("<b>",_("Ends at:"),"</b> ", NULL);
+	label = gtk_label_new(str);
+	g_free(str);
 	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), meet->end_time, FALSE, FALSE, 0);
-	label = gtk_label_new(g_strconcat("<b> ",_("on:"),"</b>",NULL));
+	str = g_strconcat("<b> ",_("on:"),"</b>",NULL);
+	label = gtk_label_new(str);
+	g_free(str);
 	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
@@ -2102,7 +2110,11 @@ gboolean vcal_meeting_export_freebusy(const gchar *path, const gchar *user,
 	
 		ipt.start = icaltime_from_string(event->dtstart);
 		ipt.end = icaltime_from_string(event->dtend);
+#if ICAL_CHECK_VERSION(4, 0, 0)
+		ipt.duration = icalduration_from_times(ipt.end, ipt.start);
+#else
 		ipt.duration = icaltime_subtract(ipt.end, ipt.start);
+#endif
 		if (icaltime_as_timet(ipt.start) <= icaltime_as_timet(itt_end) 
 		 && icaltime_as_timet(ipt.end) >= icaltime_as_timet(itt_start)) {
 			prop = icalproperty_new_freebusy(ipt);

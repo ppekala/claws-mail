@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2003-2022 the Claws Mail team and Match Grun
+ * Copyright (C) 2003-2026 the Claws Mail team and Match Grun
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,8 +55,6 @@ LdapServer *ldapsvr_create_noctl( void ) {
 	server->type = ADBOOKTYPE_LDAP;
 	server->addressCache = addrcache_create();
 	server->retVal = MGU_SUCCESS;
-	server->control = NULL;
-	server->listQuery = NULL;
 	server->searchFlag = FALSE;
 	return server;
 }

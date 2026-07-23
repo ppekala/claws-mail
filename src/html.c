@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2016 Hiroyuki Yamamoto and the Claws Mail team
+ * Copyright (C) 1999-2026 Hiroyuki Yamamoto and the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,12 +63,10 @@ SC_HTMLParser *sc_html_parser_new(FILE *fp, CodeConverter *conv)
 	parser->buf = g_string_new(NULL);
 	parser->bufp = parser->buf->str;
 	parser->state = SC_HTML_NORMAL;
-	parser->href = NULL;
 	parser->newline = TRUE;
 	parser->empty_line = TRUE;
 	parser->space = FALSE;
 	parser->pre = FALSE;
-	parser->indent = 0;
 
 	return parser;
 }

@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2004-2025 the Claws Mail team
+ * Copyright (C) 2004-2026 the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -561,9 +561,7 @@ struct GPGAccountConfig *prefs_gpg_account_get_config(PrefsAccount *account)
 
 	config = g_new0(GPGAccountConfig, 1);
 	config->sign_key = SIGN_KEY_DEFAULT;
-	config->sign_key_id = NULL;
 	config->smime_sign_key = SIGN_KEY_DEFAULT;
-	config->smime_sign_key_id = NULL;
 
 	confstr = prefs_account_get_privacy_prefs(account, "gpg");
 	if (confstr != NULL) {

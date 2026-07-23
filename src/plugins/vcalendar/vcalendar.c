@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 the Claws Mail team and Colin Leroy
+ * Copyright (C) 1999-2026 the Claws Mail team and Colin Leroy
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1192,7 +1192,6 @@ MimeViewer *vcal_viewer_create(void)
 	vcalviewer->attendees = gtk_label_new("attendees");
 
 	vcalviewer->answer = gtk_combo_box_text_new();
-	vcalviewer->url = NULL;
 	vcalviewer->button = gtk_button_new_with_label(_("Answer"));
 	vcalviewer->reedit = gtk_button_new_with_label(_("Edit meeting..."));
 	vcalviewer->cancel = gtk_button_new_with_label(_("Cancel meeting..."));

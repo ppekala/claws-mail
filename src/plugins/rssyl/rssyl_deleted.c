@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2005-2023 the Claws Mail Team and Andrej Kacian <andrej@kacian.sk>
+ * Copyright (C) 2005-2026 the Claws Mail Team and Andrej Kacian <andrej@kacian.sk>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,8 +38,6 @@ static RDeletedItem *_new_deleted_item()
 {
 	RDeletedItem *ditem = g_new0(RDeletedItem, 1);
 
-	ditem->id = NULL;
-	ditem->title = NULL;
 	ditem->date_published = -1;
 
 	return ditem;

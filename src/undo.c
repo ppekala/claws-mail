@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2016 Hiroyuki Yamamoto and the Claws Mail team
+ * Copyright (C) 1999-2026 the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,9 +96,6 @@ UndoMain *undo_init(GtkWidget *text)
 
 	undostruct = g_new0(UndoMain, 1);
 	undostruct->textview = textview;
-	undostruct->undo = NULL;
-	undostruct->redo = NULL;
-	undostruct->paste = 0;
 	undostruct->undo_state = FALSE;
 	undostruct->redo_state = FALSE;
 
@@ -576,12 +573,9 @@ static void init_wrap_undo(UndoMain *undostruct)
 	undostruct->wrap_info->pre_wrap_content
 		= gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
 
-	undostruct->wrap_info->lock = 0;
-
 	/* start_pos == -1 means nothing changed yet. */
 	undostruct->wrap_info->start_pos = -1;
 	undostruct->wrap_info->end_pos = -1;
-	undostruct->wrap_info->len_change = 0;
 }
 
 static void end_wrap_undo(UndoMain *undostruct)

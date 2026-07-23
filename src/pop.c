@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2022 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2026 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -615,7 +615,6 @@ Session *pop3_session_new(PrefsAccount *account)
 
 	SESSION(session)->recv_msg = pop3_session_recv_msg;
 	SESSION(session)->recv_data_finished = pop3_session_recv_data_finished;
-	SESSION(session)->send_data_finished = NULL;
 	SESSION(session)->ssl_cert_auto_accept = account->ssl_certs_auto_accept;
 	SESSION(session)->destroy = pop3_session_destroy;
 
@@ -632,7 +631,6 @@ Session *pop3_session_new(PrefsAccount *account)
 	pop3_get_uidl_table(account, session);
 	session->current_time = time(NULL);
 	session->error_val = PS_SUCCESS;
-	session->error_msg = NULL;
 
 #ifdef USE_OAUTH2
 	if(session->ac_prefs->use_pop_auth && session->ac_prefs->pop_auth_type == POPAUTH_OAUTH2){

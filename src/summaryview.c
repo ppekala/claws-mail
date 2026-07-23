@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2025 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2026 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -823,7 +823,6 @@ SummaryView *summary_create(MainWindow *mainwin)
 	summaryview->multiple_sel_togbtn = multiple_sel_togbtn;
 #endif
 	summaryview->toggle_search = toggle_search;
-	summaryview->lock_count = 0;
 	summaryview->msginfo_update_callback_id =
 		hooks_register_hook(MSGINFO_UPDATE_HOOKLIST, summary_update_msg, (gpointer) summaryview);
 	summaryview->folder_item_update_callback_id =
@@ -1658,7 +1657,7 @@ gboolean summary_show(SummaryView *summaryview, FolderItem *item, gboolean avoid
 		}
 
 		summary_unlock(summaryview);
-		summary_thaw(summaryview);
+		summary_thaw(summaryview); /* allow tree scroll to msg row */
 
 		if (node)
 			summary_select_node(summaryview, node,
@@ -2322,7 +2321,6 @@ void summary_select_node(SummaryView *summaryview, GtkCMCTreeNode *node,
 		summaryview->messageview->mimeview->textview->stop_loading = TRUE;
 		
 		data->ctree = ctree;
-		data->row = NULL;
 		data->node = node;
 		data->summaryview = summaryview;
 		data->display_msg = display_msg;
@@ -3573,25 +3571,25 @@ static inline void summary_set_header(SummaryView *summaryview, gchar *text[],
 		text[col_pos[S_COL_SUBJECT]] = msginfo->subject ? msginfo->subject :
 			_("(No Subject)");
 	if ((vert_layout || small_layout) && prefs_common.two_line_vert) {
+		gchar *str;
 		if (!FOLDER_SHOWS_TO_HDR(summaryview->folder_item)) {
-			gchar *tmp = g_markup_printf_escaped(g_strconcat("%s\n",
-									"<span color='%s' style='italic'>",
-									_("From: %s, on %s"), "</span>", NULL),
+			str = g_strconcat("%s\n", "<span color='%s' style='italic'>",
+					_("From: %s, on %s"), "</span>", NULL);
+			text[col_pos[S_COL_SUBJECT]] = g_markup_printf_escaped(str,
 					text[col_pos[S_COL_SUBJECT]],
 					color_dim_rgb,
 					text[col_pos[S_COL_FROM]],
 					text[col_pos[S_COL_DATE]]);
-			text[col_pos[S_COL_SUBJECT]] = tmp;
 		} else {
-			gchar *tmp = g_markup_printf_escaped(g_strconcat("%s\n",
-									 "<span color='%s' style='italic'>",
-									_("To: %s, on %s"), "</span>", NULL),
+			str = g_strconcat("%s\n", "<span color='%s' style='italic'>",
+					_("To: %s, on %s"), "</span>", NULL),
+			text[col_pos[S_COL_SUBJECT]] = g_markup_printf_escaped(str,
 					text[col_pos[S_COL_SUBJECT]],
 					color_dim_rgb,
 					text[col_pos[S_COL_TO]],
 					text[col_pos[S_COL_DATE]]);
-			text[col_pos[S_COL_SUBJECT]] = tmp;
 		}
+		g_free(str);
 	}
 }
 
@@ -7251,7 +7249,6 @@ static void summary_selected(GtkCMCTree *ctree, GtkCMCTreeNode *row,
 		
 		data->ctree = ctree;
 		data->row = row;
-		data->node = NULL;
 		data->column = column;
 		data->summaryview = summaryview;
 		debug_print("postponing open of message till end of load\n");

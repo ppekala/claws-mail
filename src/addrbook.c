@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2001-2022 Match Grun and the Claws Mail team
+ * Copyright (C) 2001-2026 Match Grun and the Claws Mail team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,11 +67,6 @@ AddressBookFile *addrbook_create_book()
 	book->type = ADBOOKTYPE_BOOK;
 	book->addressCache = addrcache_create();
 	book->retVal = MGU_SUCCESS;
-	book->path = NULL;
-	book->fileName = NULL;
-	book->maxValue = 0;
-	book->tempList = NULL;
-	book->tempHash = NULL;
 	book->addressCache->modified = TRUE;
 
 	return book;
