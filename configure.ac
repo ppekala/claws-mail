@@ -2211,6 +2211,7 @@ src/plugins/rssyl/version.rc
 src/plugins/rssyl/tests/Makefile
 src/plugins/rssyl/libfeed/Makefile
 src/plugins/rssyl/libfeed/tests/Makefile
+src/plugins/sanity/Makefile
 src/plugins/smime/Makefile
 src/plugins/smime/version.rc
 src/plugins/spamassassin/Makefile
