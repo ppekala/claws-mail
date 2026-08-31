@@ -32,6 +32,7 @@ SUBDIRS = \
 	pgpmime \
 	pgpinline \
 	rssyl \
+	sanity \
 	smime \
 	spamassassin \
 	spam_report \

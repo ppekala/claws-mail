@@ -56,5 +56,10 @@ ${LIBTOOL} \
   && autoheader \
   && automake --add-missing --foreign --copy
 if test -z "$NOCONFIGURE"; then
-exec ./configure --enable-maintainer-mode "$@"
-fi   
+./configure --enable-maintainer-mode \
+	--enable-crash-dialog \
+	--disable-manual "$@"
+fi
+
+git restore ABOUT-NLS config/config.rpath po/Makefile.in.in
+

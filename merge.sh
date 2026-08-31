@@ -5,5 +5,5 @@ if ! which -s git; then
 	exit 1
 fi
 
-git pull -t git://git.claws-mail.org/claws.git
+git pull --tags --rebase git://git.claws-mail.org/claws.git
 
