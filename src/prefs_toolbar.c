@@ -1415,11 +1415,16 @@ static gboolean set_list_selected(GtkTreeSelection *selector,
 	gtk_button_set_image(GTK_BUTTON(prefs_toolbar->icon_button),
 			     gtk_image_new_from_pixbuf(pix));
 <<<<<<< HEAD
+<<<<<<< HEAD
 	gtk_button_set_always_show_image(GTK_BUTTON(prefs_toolbar->icon_button), TRUE);
 =======
 	gtk_button_set_always_show_image(
 			     GTK_BUTTON(prefs_toolbar->icon_button), TRUE);
 >>>>>>> 3ddd73ffa (Always show icon preview on button, bug 4846)
+=======
+	gtk_button_set_always_show_image(
+			     GTK_BUTTON(prefs_toolbar->icon_button), TRUE);
+>>>>>>> refs/remotes/origin/master
 
 	if (g_utf8_collate(toolbar_ret_descr_from_val(A_SEPARATOR), descr) == 0) {
 		gtk_button_set_label(GTK_BUTTON(prefs_toolbar->icon_button),
