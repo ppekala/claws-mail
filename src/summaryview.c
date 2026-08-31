@@ -1657,11 +1657,7 @@ gboolean summary_show(SummaryView *summaryview, FolderItem *item, gboolean avoid
 		}
 
 		summary_unlock(summaryview);
-<<<<<<< HEAD
 		summary_thaw(summaryview); /* allow tree scroll to msg row */
-=======
-		summary_thaw(summaryview);
->>>>>>> 8ec4bc943 (fix bug 4898 'When entering folder message list is not scrolling to)
 
 		if (node)
 			summary_select_node(summaryview, node,
