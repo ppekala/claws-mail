@@ -37,6 +37,11 @@ struct {
 	gboolean autochk_newmail;
 	GdkRGBA col_log_in;
 	GdkRGBA col_log_snok;
+	GdkRGBA col_quote_level1;
+	GdkRGBA col_quote_level2;
+	GdkRGBA col_quote_level3;
+	GdkRGBA col_signature;
+	GdkRGBA col_tgt_folder;
 	GdkRGBA col_uri;
 	gint folderview_vscrollbar_policy;
 	ToolbarStyle toolbar_style;
@@ -95,11 +100,24 @@ gint plugin_init(gchar **error)
 	memcpy(&defaults.col_log_snok, &prefs->color[COL_LOG_STATUS_NOK], sizeof(GdkRGBA));
 	/* green links, don't see why be different from everyone else */
 	memcpy(&defaults.col_uri, &prefs->color[COL_URI], sizeof(GdkRGBA));
+	/* quote levels */
+	memcpy(&defaults.col_quote_level1, &prefs->color[COL_QUOTE_LEVEL1], sizeof(GdkRGBA));
+	memcpy(&defaults.col_quote_level2, &prefs->color[COL_QUOTE_LEVEL2], sizeof(GdkRGBA));
+	memcpy(&defaults.col_quote_level3, &prefs->color[COL_QUOTE_LEVEL3], sizeof(GdkRGBA));
+	/* signature */
+	memcpy(&defaults.col_signature, &prefs->color[COL_SIGNATURE], sizeof(GdkRGBA));
+	/* target folder DND highlight */
+	memcpy(&defaults.col_tgt_folder, &prefs->color[COL_TGT_FOLDER], sizeof(GdkRGBA));
 
 	GtkStyleContext *ctx = gtk_widget_get_style_context(mainwin->window);
 	gtk_style_context_get_color(ctx, GTK_STATE_FLAG_NORMAL, &prefs->color[COL_LOG_IN]);
 	gtk_style_context_get_color(ctx, GTK_STATE_FLAG_FOCUSED, &prefs->color[COL_LOG_STATUS_NOK]);
 	gtk_style_context_get_color(ctx, GTK_STATE_FLAG_LINK, &prefs->color[COL_URI]);
+	gtk_style_context_get_color(ctx, GTK_STATE_FLAG_BACKDROP, &prefs->color[COL_QUOTE_LEVEL1]);
+	gtk_style_context_get_color(ctx, GTK_STATE_FLAG_BACKDROP, &prefs->color[COL_QUOTE_LEVEL2]);
+	gtk_style_context_get_color(ctx, GTK_STATE_FLAG_BACKDROP, &prefs->color[COL_QUOTE_LEVEL3]);
+	gtk_style_context_get_color(ctx, GTK_STATE_FLAG_BACKDROP, &prefs->color[COL_SIGNATURE]);
+	gtk_style_context_get_color(ctx, GTK_STATE_FLAG_DROP_ACTIVE, &prefs->color[COL_TGT_FOLDER]);
 
 	/* show icons and text beside for compactness */
 	defaults.toolbar_style = prefs->toolbar_style;
@@ -119,6 +137,11 @@ gboolean plugin_done(void)
 	memcpy(&prefs->color[COL_LOG_IN], &defaults.col_log_in, sizeof(GdkRGBA));
 	memcpy(&prefs->color[COL_LOG_STATUS_NOK], &defaults.col_log_snok, sizeof(GdkRGBA));
 	memcpy(&prefs->color[COL_URI], &defaults.col_uri, sizeof(GdkRGBA));
+	memcpy(&prefs->color[COL_QUOTE_LEVEL1], &defaults.col_quote_level1, sizeof(GdkRGBA));
+	memcpy(&prefs->color[COL_QUOTE_LEVEL2], &defaults.col_quote_level2, sizeof(GdkRGBA));
+	memcpy(&prefs->color[COL_QUOTE_LEVEL3], &defaults.col_quote_level3, sizeof(GdkRGBA));
+	memcpy(&prefs->color[COL_SIGNATURE], &defaults.col_signature, sizeof(GdkRGBA));
+	memcpy(&prefs->color[COL_TGT_FOLDER], &defaults.col_tgt_folder, sizeof(GdkRGBA));
 	prefs->toolbar_style = defaults.toolbar_style;
 
 	sanity_reflect_prefs(prefs);
