@@ -56,12 +56,16 @@ ${LIBTOOL} \
   && autoheader \
   && automake --add-missing --foreign --copy
 if test -z "$NOCONFIGURE"; then
-	#export CFLAGS="-Wno-deprecated-declarations"
-./configure --enable-maintainer-mode \
-	--enable-crash-dialog \
-	--disable-manual "$@"
+	export CFLAGS="-Wno-deprecated-declarations"
+	./configure \
+		--enable-maintainer-mode \
+		--disable-manual "$@"
 fi
 
 git restore ABOUT-NLS config/config.rpath po/Makefile.in.in
 rm version
+
+if which -s uctags; then
+	exec uctags --recurse
+fi
 
