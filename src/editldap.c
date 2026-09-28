@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2001-2025 the Claws Mail team and Match Grun
+ * Copyright (C) 2001-2026 the Claws Mail team and Match Grun
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -219,7 +219,6 @@ static void edit_ldap_server_check( void ) {
 	gint iPort, iTime;
 	gchar *sMsg;
 	gchar *sBaseDN = NULL;
-	gint iBaseDN = 0;
 	gboolean flg;
 	gboolean tls = FALSE, ssl = FALSE;
 	GList *baseDN = NULL;
@@ -248,7 +247,6 @@ static void edit_ldap_server_check( void ) {
 			if( baseDN ) {
 				GList *node = baseDN;
 				while( node ) {
-					++iBaseDN;
 					if( ! sBaseDN ) {
 						sBaseDN = g_strdup( node->data );
 					}

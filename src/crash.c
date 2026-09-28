@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2002-2019 by the Claws Mail Team
+ * Copyright (C) 2002-2026 by the Claws Mail Team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +80,7 @@ static void		 crash_cleanup_exit		(void);
 
 /***/
 
-static const gchar *DEBUG_SCRIPT = "thread all apply\nbt full\nkill\nq";
+static const gchar *DEBUG_SCRIPT = "thread apply all bt full\nkill\nq";
 
 /***/
 
@@ -216,11 +216,16 @@ static GtkWidget *crash_dialog_show(const gchar *text, const gchar *debug_output
 	gtk_widget_show(scrolledwindow1);
 	gtk_container_add(GTK_CONTAINER(frame1), scrolledwindow1);
 	gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow1), 3);
+	/* the backtrace has long lines: without horizontal scrolling and without
+	 * wrapping, the text view asks for the width of its longest line and the
+	 * window has to grant it, ending up wider than the screen and impossible
+	 * to shrink back. Same fix as the log window. */
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow1),
-				       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+				       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
 	text1 = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(text1), FALSE);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text1), GTK_WRAP_WORD_CHAR);
 	gtk_widget_show(text1);
 	gtk_container_add(GTK_CONTAINER(scrolledwindow1), text1);
 
@@ -366,9 +371,15 @@ static void crash_debug(unsigned long crash_pid,
 		*argptr   = NULL;
 
 		/*
-		 * redirect output to write end of pipe
+		 * redirect output to write end of pipe; stderr too, otherwise a
+		 * debugger that refuses the script (bad command, no permission
+		 * to attach, ...) fails silently and the dialog shows an empty
+		 * backtrace with nothing to explain it
 		 */
 		close(1);
+		if (dup(choutput[1]) < 0)
+			perror("dup");
+		close(2);
 		if (dup(choutput[1]) < 0)
 			perror("dup");
 		close(choutput[0]);

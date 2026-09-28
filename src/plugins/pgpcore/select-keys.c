@@ -1,5 +1,5 @@
 /* select-keys.c - GTK based key selection
- * Copyright (C) 2001-2025 Werner Koch (dd9jn) and the Claws Mail team
+ * Copyright (C) 2001-2026 the Claws Mail team and Werner Koch (dd9jn)
  *
  * This program is free software; you can redistribute it and/or modify        
  * it under the terms of the GNU General Public License as published by
@@ -629,6 +629,12 @@ select_btn_cb (GtkWidget *widget, gpointer data)
 	}
 	if (!uid)
 		uid = key->uids;
+
+        /* a key carrying no user id at all leaves the fallback NULL */
+        if (!uid) {
+            debug_print ("** Key has no user id, will not encrypt\n");
+            return;
+        }
 
         if ( uid->validity < GPGME_VALIDITY_FULL ) {
             use_key = use_untrusted(key, uid, sk->proto);

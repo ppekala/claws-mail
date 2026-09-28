@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2024 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2026 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -258,11 +258,17 @@ static void export_filesel_cb(GtkWidget *widget, gpointer data)
 static void export_srcsel_cb(GtkWidget *widget, gpointer data)
 {
 	FolderItem *src;
+	gchar *src_id;
 
 	src = foldersel_folder_sel(NULL, FOLDER_SEL_ALL, NULL, FALSE,
 			_("Select folder to export"));
-	if (src && src->path)
-		gtk_entry_set_text(GTK_ENTRY(src_entry), src->path);
+	if (src && src->path) {
+		src_id = folder_item_get_identifier(src);
+		if (src_id) {
+			gtk_entry_set_text(GTK_ENTRY(src_entry), src_id);
+			g_free(src_id);
+		}
+	}
 }
 
 static gint delete_event(GtkWidget *widget, GdkEventAny *event, gpointer data)

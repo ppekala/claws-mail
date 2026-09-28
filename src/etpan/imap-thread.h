@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2005-2023 the Claws Mail team and DINH Viet Hoa
+ * Copyright (C) 2005-2026 the Claws Mail team and DINH Viet Hoa
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,6 +59,8 @@ int imap_threaded_list(Folder * folder, const char * base,
 int imap_threaded_lsub(Folder * folder, const char * base,
 		       const char * wildcard,
 		       clist ** p_result);
+int imap_threaded_id(Folder * folder);
+
 int imap_threaded_login(Folder * folder,
 			const char * login, const char * password,
 			const char * type);

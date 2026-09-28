@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2024 the Claws Mail team and Hiroyuki Yamamoto
+ * Copyright (C) 1999-2026 the Claws Mail team and Hiroyuki Yamamoto
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -291,7 +291,7 @@ static void grouplist_hash_set_branch_node(const gchar *name,
 
 static gchar *grouplist_get_parent_name(const gchar *name)
 {
-	gchar *p;
+	const gchar *p;
 
 	p = strrchr(name, '.');
 	if (!p)

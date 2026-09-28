@@ -699,7 +699,7 @@ static GtkActionEntry compose_entries[] =
 	/* {"Options/---",                NULL, "---", NULL, NULL, NULL }, */
 	{"Options/Priority",              NULL, N_("_Priority"), NULL, NULL, NULL },
 
-	{"Options/Encoding",              NULL, N_("Character _encoding"), NULL, NULL, NULL },
+	{"Options/Encoding",              NULL, N_("_Character encoding"), NULL, NULL, NULL },
 	{"Options/Encoding/---",          NULL, "---", NULL, NULL, NULL },
 #define ENC_ACTION(cs_char,c_char,string) \
 	{"Options/Encoding/" cs_char, NULL, N_(string), NULL, NULL, c_char }
@@ -4196,7 +4196,6 @@ static gchar * compose_get_itemized_chars(GtkTextBuffer *buffer,
 {
 	GtkTextIter iter = *start;
 	gunichar wc;
-	gint len = 0;
 	GString *item_chars = g_string_new("");
 
 	if (gtk_text_iter_ends_line(&iter)) {
@@ -4205,7 +4204,6 @@ static gchar * compose_get_itemized_chars(GtkTextBuffer *buffer,
 	}
 
 	while (1) {
-		len++;
 		wc = gtk_text_iter_get_char(&iter);
 		if (!g_unichar_isspace(wc))
 			break;

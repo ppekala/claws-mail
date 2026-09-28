@@ -1,7 +1,7 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 1999-2018 Colin Leroy <colin@colino.net>
- * and the Claws Mail team
+ * Copyright (C) 1999-2026 the Claws Mail team
+ * and Colin Leroy <colin@colino.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -352,7 +352,7 @@ int partial_unmark(MsgInfo *msginfo)
 void partial_delete_old(const gchar *file) 
 {
 	gchar *id = g_strdup(file);
-	gchar *snum = strrchr(file, ':');
+	const gchar *snum = strrchr(file, ':');
 	int num = 0;
 	FolderItem *item = NULL;
 

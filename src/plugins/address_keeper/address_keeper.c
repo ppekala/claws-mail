@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2009-2015 Ricardo Mones and the Claws Mail Team
+ * Copyright (C) 2009-2026 Ricardo Mones and the Claws Mail Team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ static gulong hook_id = HOOK_NONE;
  */
 gchar *get_name_from_addr(const gchar *addr)
 {
-	gchar *name = NULL;
+	const gchar *name = NULL;
 
 	if (addr == NULL || *addr == '\0')
 		return NULL;
@@ -70,7 +70,7 @@ gchar *get_name_from_addr(const gchar *addr)
  */
 gchar *get_comment_from_addr(const gchar *addr)
 {
-	gchar *comm = NULL;
+	const gchar *comm = NULL;
 
 	if (addr == NULL || *addr == '\0')
 		return NULL;

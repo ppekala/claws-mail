@@ -1,9 +1,6 @@
 /* Perl plugin -- Perl Support for Claws Mail
  *
- * Copyright (C) 2004-2007 Holger Berndt
- *
- * Sylpheed and Claws Mail are GTK based, lightweight, and fast e-mail clients
- * Copyright (C) 1999-2007 Hiroyuki Yamamoto and the Claws Mail Team
+ * Copyright (C) 2004-2026 the Claws Mail Team and Holger Berndt
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,7 +76,7 @@ void perl_gtk_done(void)
 static void perl_filter_edit(GtkAction *action, gpointer callback_data)
 {
   gchar *perlfilter;
-  gchar *pp;
+  const gchar *pp;
   gchar buf[1024];
   gchar **cmdline;
 

@@ -1,6 +1,6 @@
 /*
  * Claws Mail -- a GTK based, lightweight, and fast e-mail client
- * Copyright (C) 2005-2022 the Claws Mail team and DINH Viet Hoa
+ * Copyright (C) 2005-2026 the Claws Mail team and DINH Viet Hoa
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include <glib/gi18n.h>
 #include "imap-thread.h"
 #include <imap.h>
+#include <libetpan/mailimap_id.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -1043,6 +1044,69 @@ int imap_threaded_login(Folder * folder,
 	
 	debug_print("imap login - end\n");
 	
+	return result.error;
+}
+
+
+struct id_param {
+	mailimap * imap;
+	struct mailimap_id_params_list * client_id;
+};
+
+struct id_result {
+	int error;
+};
+
+static void id_run(struct etpan_thread_op * op)
+{
+	struct id_param * param;
+	struct id_result * result;
+	struct mailimap_id_params_list * server_id;
+	int r;
+
+	param = op->param;
+	result = op->result;
+
+	CHECK_IMAP();
+
+	server_id = NULL;
+	r = mailimap_id(param->imap, param->client_id, &server_id);
+	if (server_id != NULL)
+		mailimap_id_params_list_free(server_id);
+
+	result->error = r;
+	if (param->imap->imap_response)
+		imap_logger_cmd(0, param->imap->imap_response, strlen(param->imap->imap_response));
+	debug_print("imap id run - end %i\n", r);
+}
+
+int imap_threaded_id(Folder * folder)
+{
+	struct id_param param;
+	struct id_result result;
+	struct mailimap_id_params_list * client_id;
+
+	debug_print("imap id - begin\n");
+
+	if (!folder)
+		return MAILIMAP_ERROR_INVAL;
+
+	/* identify ourselves (RFC 2971); required by some servers -- e.g.
+	 * outlook.com/office365 -- before they accept mailbox commands. */
+	client_id = mailimap_id_params_list_new_empty();
+	if (client_id == NULL)
+		return MAILIMAP_ERROR_MEMORY;
+	mailimap_id_params_list_add_name_value(client_id, strdup("name"), strdup("Claws Mail"));
+
+	param.imap = get_imap(folder);
+	param.client_id = client_id;
+
+	threaded_run(folder, &param, &result, id_run);
+
+	mailimap_id_params_list_free(client_id);
+
+	debug_print("imap id - end %i\n", result.error);
+
 	return result.error;
 }
 
@@ -2714,7 +2778,12 @@ static int imap_flags_to_flags(struct mailimap_msg_att_dynamic * att_dyn, GSList
 	GSList *tags = NULL;
 
 	flags = MSG_UNREAD;
-	
+
+	/* the dynamic attribute is optional: a FETCH reply can carry the headers
+	   without it, and the caller only checks the headers */
+	if (att_dyn == NULL)
+		return flags;
+
 	flag_list = att_dyn->att_list;
 	if (flag_list == NULL)
 		return flags;
@@ -2840,12 +2909,34 @@ fetch_to_env_info(struct mailimap_msg_att * msg_att, GSList **tags)
 	if (!headers)
 		return NULL;
 	info = malloc(sizeof(* info));
+	if (info == NULL)
+		return NULL;
 	info->uid = uid;
 	info->headers = strdup(headers);
 	info->size = size;
 	info->flags = imap_flags_to_flags(att_dyn, tags);
 	
 	return info;
+}
+
+/* Release a partially built envelope list. The array alternates env_info and
+   its tags, and on an error path nothing downstream will consume either, so
+   both are freed here -- carray_free() would release the array alone. A final
+   env_info without its tags is possible when the second carray_add() fails. */
+static void imap_env_list_free(carray * env_list)
+{
+	unsigned int i;
+
+	for(i = 0 ; i < carray_count(env_list) ; i += 2) {
+		struct imap_fetch_env_info * env_info;
+
+		env_info = carray_get(env_list, i);
+		free(env_info->headers);
+		free(env_info);
+		if (i + 1 < carray_count(env_list))
+			slist_free_strings_full(carray_get(env_list, i + 1));
+	}
+	carray_free(env_list);
 }
 
 static int
@@ -2857,6 +2948,8 @@ imap_fetch_result_to_envelop_list(clist * fetch_result,
   	if (fetch_result) {
 		carray * env_list;
 		env_list = carray_new(16);
+		if (env_list == NULL)
+			return MAILIMAP_ERROR_MEMORY;
 
 		for(cur = clist_begin(fetch_result) ; cur != NULL ;
 		    cur = clist_next(cur)) {
@@ -2867,10 +2960,20 @@ imap_fetch_result_to_envelop_list(clist * fetch_result,
 			msg_att = clist_content(cur);
 
 			env_info = fetch_to_env_info(msg_att, &tags);
-			if (!env_info
-			 || carray_add(env_list, env_info, NULL) != 0
-			 || carray_add(env_list, tags, NULL) != 0) {
-				carray_free(env_list);
+			if (env_info == NULL) {
+				imap_env_list_free(env_list);
+				return MAILIMAP_ERROR_MEMORY;
+			}
+			if (carray_add(env_list, env_info, NULL) != 0) {
+				free(env_info->headers);
+				free(env_info);
+				slist_free_strings_full(tags);
+				imap_env_list_free(env_list);
+				return MAILIMAP_ERROR_MEMORY;
+			}
+			if (carray_add(env_list, tags, NULL) != 0) {
+				slist_free_strings_full(tags);
+				imap_env_list_free(env_list);
 				return MAILIMAP_ERROR_MEMORY;
 			}
 		}
