@@ -1118,6 +1118,7 @@ static void prefs_account_edit_custom_header	(void);
 static void prefs_account_receive_itv_spinbutton_value_changed_cb(GtkWidget *w, gpointer data);
 
 #define COMBOBOX_PRIVACY_PLUGIN_ID 3
+#define OPTION_INDENTATION 24
 
 /* Enable/disable necessary preference widgets based on current privacy
  * system choice. */
@@ -1258,17 +1259,17 @@ static void basic_create_widget_func(PrefsPage * _page,
 
 	label = gtk_label_new (_("Full name"));
 	gtk_widget_show (label);
-	gtk_label_set_xalign(GTK_LABEL (label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL (label), 0);
 	gtk_grid_attach(GTK_GRID(table1), label, 0, 0, 1, 1);
 
 	label = gtk_label_new (_("Mail address"));
 	gtk_widget_show (label);
-	gtk_label_set_xalign(GTK_LABEL (label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL (label), 0);
 	gtk_grid_attach(GTK_GRID(table1), label, 0, 1, 1, 1);
 
 	label = gtk_label_new (_("Organization"));
 	gtk_widget_show (label);
-	gtk_label_set_xalign(GTK_LABEL (label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL (label), 0);
 	gtk_grid_attach(GTK_GRID(table1), label, 0, 2, 1, 1);
 
 	name_entry = gtk_entry_new ();
@@ -1438,22 +1439,22 @@ static void basic_create_widget_func(PrefsPage * _page,
 
 	nntpserv_label = gtk_label_new (_("News server"));
 	gtk_widget_show (nntpserv_label);
-	gtk_label_set_xalign(GTK_LABEL (nntpserv_label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL (nntpserv_label), 0);
 	gtk_grid_attach(GTK_GRID(serv_table), nntpserv_label, 0, 0, 1, 1);
 
 	recvserv_label = gtk_label_new (_("Server for receiving"));
 	gtk_widget_show (recvserv_label);
-	gtk_label_set_xalign(GTK_LABEL (recvserv_label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL (recvserv_label), 0);
 	gtk_grid_attach(GTK_GRID(serv_table), recvserv_label, 0, 2, 1, 1);
 
 	localmbox_label = gtk_label_new (_("Local mailbox"));
 	gtk_widget_show (localmbox_label);
-	gtk_label_set_xalign(GTK_LABEL (localmbox_label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL (localmbox_label), 0);
 	gtk_grid_attach(GTK_GRID(serv_table), localmbox_label, 0, 3, 1, 1);
 
 	smtpserv_label = gtk_label_new (_("SMTP server (send)"));
 	gtk_widget_show (smtpserv_label);
-	gtk_label_set_xalign(GTK_LABEL (smtpserv_label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL (smtpserv_label), 0);
 	gtk_grid_attach(GTK_GRID(serv_table), smtpserv_label, 0, 4, 1, 1);
 
 	mailcmd_checkbtn = gtk_check_button_new_with_label
@@ -1466,18 +1467,19 @@ static void basic_create_widget_func(PrefsPage * _page,
 			 NULL);
 
 	mailcmd_label = gtk_label_new (_("command to send mails"));
+	gtk_widget_set_margin_start(mailcmd_label, OPTION_INDENTATION);
 	gtk_widget_show (mailcmd_label);
-	gtk_label_set_xalign(GTK_LABEL (mailcmd_label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL (mailcmd_label), 0);
 	gtk_grid_attach(GTK_GRID(serv_table), mailcmd_label, 0, 6, 1, 1);
 
 	uid_label = gtk_label_new (_("User ID"));
 	gtk_widget_show (uid_label);
-	gtk_label_set_xalign(GTK_LABEL (uid_label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL (uid_label), 0);
 	gtk_grid_attach(GTK_GRID(serv_table), uid_label, 0, 7, 1, 1);
 
 	pass_label = gtk_label_new (_("Password"));
 	gtk_widget_show (pass_label);
-	gtk_label_set_xalign(GTK_LABEL (pass_label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL (pass_label), 0);
 	gtk_grid_attach(GTK_GRID(serv_table), pass_label, 0, 8, 1, 1);
 
 	SET_TOGGLE_SENSITIVITY (nntpauth_checkbtn, uid_label);
@@ -2000,6 +2002,7 @@ static void send_create_widget_func(PrefsPage * _page,
 	GtkTreeIter iter;
 	GtkWidget *vbox4;
 	GtkWidget *hbox_spc;
+	GtkSizeGroup *label_sizegroup;
 	GtkWidget *label;
 	GtkWidget *smtp_uid_entry;
 	GtkWidget *smtp_pass_entry;
@@ -2061,8 +2064,12 @@ static void send_create_widget_func(PrefsPage * _page,
 	gtk_box_pack_start (GTK_BOX (hbox), hbox_spc, FALSE, FALSE, 0);
 	gtk_widget_set_size_request (hbox_spc, 12, -1);
 
+	label_sizegroup = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+
 	label = gtk_label_new (_("Authentication method"));
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_widget_show (label);
+	gtk_size_group_add_widget(label_sizegroup, label);
 	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
 	optmenu = gtkut_sc_combobox_create(NULL, FALSE);
@@ -2094,7 +2101,9 @@ static void send_create_widget_func(PrefsPage * _page,
 	gtk_widget_set_size_request (hbox_spc, 12, -1);
 
 	label = gtk_label_new (_("User ID"));
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_widget_show (label);
+	gtk_size_group_add_widget(label_sizegroup, label);
 	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
 	smtp_uid_entry = gtk_entry_new ();
@@ -2240,6 +2249,7 @@ static void oauth2_create_widget_func(PrefsPage * _page,
 	GtkWidget *hbox_spc;
 	GtkWidget *oauth2_authorise_btn;
 	GtkWidget *auth_vbox, *auth_frame;
+	GtkSizeGroup *label_sizegroup;
 	GtkWidget *label;
 	GtkWidget *oauth2_authcode_entry;
 	GtkWidget *oauth2_auth_optmenu;
@@ -2318,13 +2328,15 @@ static void oauth2_create_widget_func(PrefsPage * _page,
 	table1 = gtk_grid_new();
 	gtk_widget_show (table1);
 	gtk_container_add (GTK_CONTAINER (vbox2), table1);
-	gtk_container_set_border_width (GTK_CONTAINER (table1), 8);
 	gtk_grid_set_row_spacing(GTK_GRID(table1), VSPACING_NARROW);
 	gtk_grid_set_column_spacing(GTK_GRID(table1), 8);
 
+	label_sizegroup = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+
 	label = gtk_label_new (_("Client ID"));
 	gtk_widget_show (label);
-	gtk_label_set_xalign(GTK_LABEL (label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL (label), 0);
+	gtk_size_group_add_widget(label_sizegroup, label);
 	gtk_grid_attach(GTK_GRID(table1), label, 0, 0, 1, 1);
 
 	oauth2_client_id_entry = gtk_entry_new();
@@ -2335,7 +2347,8 @@ static void oauth2_create_widget_func(PrefsPage * _page,
 
 	label = gtk_label_new (_("Client secret"));
 	gtk_widget_show (label);
-	gtk_label_set_xalign(GTK_LABEL (label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL (label), 0);
+	gtk_size_group_add_widget(label_sizegroup, label);
 	gtk_grid_attach(GTK_GRID(table1), label, 0, 1, 1, 1);
 
 	oauth2_client_secret_entry = gtk_entry_new ();
@@ -2359,22 +2372,26 @@ static void oauth2_create_widget_func(PrefsPage * _page,
 	gtk_box_pack_start (GTK_BOX (vbox3), hbox, FALSE, FALSE, 0);
 
 	label = gtk_label_new (_("Obtain authorization code"));
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_widget_show (label);
+	gtk_size_group_add_widget(label_sizegroup, label);
 	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
 	oauth2_link_button = gtk_button_new_with_label(_("Open default browser with request"));
 	g_signal_connect(G_OBJECT(oauth2_link_button), "clicked", G_CALLBACK(prefs_account_oauth2_copy_url), NULL);
 	gtk_widget_set_sensitive(oauth2_link_button, TRUE);
-	gtk_widget_set_margin_bottom(oauth2_link_button, 8);
+	gtk_widget_set_margin_top(oauth2_link_button, 4);
+	gtk_widget_set_margin_bottom(oauth2_link_button, 4);
 	gtk_widget_show (oauth2_link_button);
 	gtk_box_pack_start (GTK_BOX (hbox), oauth2_link_button, FALSE, FALSE, 0);
 
 	oauth2_link_copy_button = gtk_button_new_with_label(_("Copy link"));
 	g_signal_connect(G_OBJECT(oauth2_link_copy_button), "clicked", G_CALLBACK(prefs_account_oauth2_copy_url), NULL);
 	gtk_widget_set_sensitive(oauth2_link_copy_button, TRUE);
-	gtk_widget_set_margin_bottom(oauth2_link_copy_button, 8);
+	gtk_widget_set_margin_top(oauth2_link_copy_button, 4);
+	gtk_widget_set_margin_bottom(oauth2_link_copy_button, 4);
 	gtk_widget_show (oauth2_link_copy_button);
-	gtk_box_pack_start (GTK_BOX (hbox), oauth2_link_copy_button, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), oauth2_link_copy_button, TRUE, TRUE, 0);
 
 	/* Authorisation code */
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
@@ -2383,7 +2400,9 @@ static void oauth2_create_widget_func(PrefsPage * _page,
 	//gtk_widget_set_size_request (hbox, -1, 50);
 
 	label = gtk_label_new (_("Authorization code"));
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_widget_show (label);
+	gtk_size_group_add_widget(label_sizegroup, label);
 	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
 	oauth2_authcode_entry = gtk_entry_new ();
@@ -2399,7 +2418,9 @@ static void oauth2_create_widget_func(PrefsPage * _page,
 	gtk_box_pack_start (GTK_BOX (vbox3), hbox, FALSE, FALSE, 0);
 
 	label = gtk_label_new (_("Complete authorization"));
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_widget_show (label);
+	gtk_size_group_add_widget(label_sizegroup, label);
 	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
 	oauth2_authorise_btn = gtk_button_new_with_label(_("Authorize"));
@@ -2461,6 +2482,7 @@ static void compose_create_widget_func(PrefsPage * _page,
 	GtkWidget *hbox2;
 	GtkWidget *frame_sig;
 	GtkWidget *vbox_sig;
+	GtkSizeGroup *sig_sizegroup;
 	GtkWidget *label_sigsrc;
 	GtkWidget *checkbtn_autosig;
 	GtkWidget *label_sigsep;
@@ -2491,11 +2513,15 @@ static void compose_create_widget_func(PrefsPage * _page,
 	PACK_CHECK_BUTTON (vbox_sig, checkbtn_autosig,
 			   _("Automatically insert signature"));
 
+	sig_sizegroup = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+
 	hbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
 	gtk_widget_show (hbox1);
 	gtk_box_pack_start (GTK_BOX (vbox_sig), hbox1, TRUE, TRUE, 0);
 	label_sigsep = gtk_label_new (_("Signature separator"));
+	gtk_label_set_xalign(GTK_LABEL(label_sigsep), 0);
 	gtk_widget_show (label_sigsep);
+	gtk_size_group_add_widget(sig_sizegroup, label_sigsep);
 	gtk_box_pack_start (GTK_BOX (hbox1), label_sigsep, FALSE, FALSE, 0);
 
 	entry_sigsep = gtk_entry_new ();
@@ -2509,7 +2535,9 @@ static void compose_create_widget_func(PrefsPage * _page,
 	gtk_box_pack_start (GTK_BOX (vbox_sig), sig_hbox, FALSE, FALSE, 0);
 
 	label_sigsrc = gtk_label_new (_("Source"));
+	gtk_label_set_xalign(GTK_LABEL(label_sigsrc), 0);
 	gtk_widget_show (label_sigsrc);
+	gtk_size_group_add_widget(sig_sizegroup, label_sigsrc);
 	gtk_box_pack_start (GTK_BOX (sig_hbox), label_sigsrc, FALSE, FALSE, 0);
 
 	sigfile_radiobtn = gtk_radio_button_new_with_label (NULL, _("File"));
@@ -2537,8 +2565,9 @@ static void compose_create_widget_func(PrefsPage * _page,
 	gtk_widget_show (hbox2);
 	gtk_box_pack_start (GTK_BOX (vbox_sig), hbox2, TRUE, TRUE, 0);
 	label_sigpath = gtk_label_new (_("Filepath"));
-	gtk_label_set_xalign(GTK_LABEL(label_sigpath), 1.0);
+	gtk_label_set_xalign(GTK_LABEL(label_sigpath), 0);
 	gtk_widget_show (label_sigpath);
+	gtk_size_group_add_widget(sig_sizegroup, label_sigpath);
 	gtk_box_pack_start (GTK_BOX (hbox2), label_sigpath, FALSE, FALSE, 0);
 
 	entry_sigpath = gtk_entry_new ();
@@ -3053,8 +3082,8 @@ static void ssl_create_widget_func(PrefsPage * _page,
 	gtk_grid_set_row_spacing(GTK_GRID(cert_table), VSPACING_NARROW_2);
 	gtk_grid_set_column_spacing(GTK_GRID(cert_table), 8);
 
-	label = gtk_label_new(_("Certificate for receiving"));
-	gtk_label_set_xalign(GTK_LABEL(label), 1.0);
+	label = gtk_label_new(_("Receiving"));
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	entry_in_cert_file = gtk_entry_new();
 	in_ssl_cert_browse_button = gtkut_get_browse_file_btn(_("Browse"));
 	CLAWS_SET_TIP(label,
@@ -3068,7 +3097,7 @@ static void ssl_create_widget_func(PrefsPage * _page,
 	gtk_grid_attach(GTK_GRID(cert_table), in_ssl_cert_browse_button, 2, 0, 1, 1);
 
 	label = gtk_label_new(_("Password"));
-	gtk_label_set_xalign(GTK_LABEL(label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	entry_in_cert_pass = gtk_entry_new();
 	gtk_entry_set_visibility(GTK_ENTRY(entry_in_cert_pass), FALSE);
 	gtk_entry_set_icon_from_icon_name(GTK_ENTRY(entry_in_cert_pass),
@@ -3086,8 +3115,8 @@ static void ssl_create_widget_func(PrefsPage * _page,
 	gtk_widget_set_hexpand(entry_in_cert_pass, TRUE);
 	gtk_widget_set_halign(entry_in_cert_pass, GTK_ALIGN_FILL);
 
-	label = gtk_label_new(_("Certificate for sending"));
-	gtk_label_set_xalign(GTK_LABEL(label), 1.0);
+	label = gtk_label_new(_("Sending"));
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	entry_out_cert_file = gtk_entry_new();
 	out_ssl_cert_browse_button = gtkut_get_browse_file_btn(_("Browse"));
 	CLAWS_SET_TIP(label,
@@ -3101,7 +3130,7 @@ static void ssl_create_widget_func(PrefsPage * _page,
 	gtk_grid_attach(GTK_GRID(cert_table), out_ssl_cert_browse_button, 2, 2, 1, 1);
 
 	label = gtk_label_new(_("Password"));
-	gtk_label_set_xalign(GTK_LABEL(label), 1.0);
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	entry_out_cert_pass = gtk_entry_new();
 	gtk_entry_set_visibility(GTK_ENTRY(entry_out_cert_pass), FALSE);
 	gtk_entry_set_icon_from_icon_name(GTK_ENTRY(entry_out_cert_pass),
@@ -3222,6 +3251,7 @@ static void proxy_create_widget_func(PrefsPage * _page,
 	GtkWidget *proxy_checkbtn;
 	GtkWidget *default_proxy_checkbtn;
 	GtkWidget *hbox;
+	GtkSizeGroup *label_sizegroup;
 	GtkWidget *label;
 	GtkWidget *socks4_radiobtn;
 	GtkWidget *socks5_radiobtn;
@@ -3257,7 +3287,12 @@ static void proxy_create_widget_func(PrefsPage * _page,
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
 	gtk_box_pack_start (GTK_BOX (vbox3), hbox, FALSE, FALSE, 0);
 
+	label_sizegroup = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+
 	label = gtk_label_new(_("Protocol"));
+	gtk_widget_set_margin_start(label, OPTION_INDENTATION);
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
+	gtk_size_group_add_widget(label_sizegroup, label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 	socks4_radiobtn = gtk_radio_button_new_with_label(NULL, "SOCKS4");
@@ -3272,6 +3307,9 @@ static void proxy_create_widget_func(PrefsPage * _page,
 	gtk_box_pack_start (GTK_BOX (vbox3), hbox, FALSE, FALSE, 0);
 
 	label = gtk_label_new(_("Hostname"));
+	gtk_widget_set_margin_start(label, OPTION_INDENTATION);
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
+	gtk_size_group_add_widget(label_sizegroup, label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 	proxy_host_entry = gtk_entry_new();
@@ -3289,8 +3327,10 @@ static void proxy_create_widget_func(PrefsPage * _page,
 	gtk_box_pack_start(GTK_BOX(vbox3), vbox4, FALSE, FALSE, 0);
 
 	PACK_CHECK_BUTTON (vbox4, proxy_auth_checkbtn, _("Use authentication"));
+	gtk_widget_set_margin_start(proxy_auth_checkbtn, OPTION_INDENTATION);
 
 	table = gtk_grid_new();
+	gtk_widget_set_margin_start(table, 2 * OPTION_INDENTATION);
 	gtk_grid_set_column_spacing(GTK_GRID(table), 8);
 	gtk_box_pack_start (GTK_BOX (vbox4), table, FALSE, FALSE, 0);
 
@@ -5438,6 +5478,9 @@ static void prefs_account_protocol_changed(GtkComboBox *combobox, gpointer data)
 
 	gtk_widget_hide(protocol_optmenu->no_imap_warn_icon);
 	gtk_widget_hide(protocol_optmenu->no_imap_warn_label);
+
+	gtk_widget_set_margin_start(basic_page.uid_label, (protocol == A_NNTP) ? OPTION_INDENTATION : 0);
+	gtk_widget_set_margin_start(basic_page.pass_label, (protocol == A_NNTP) ? OPTION_INDENTATION : 0);
 
 	switch(protocol) {
 	case A_NNTP:
