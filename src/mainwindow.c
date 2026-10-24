@@ -2670,8 +2670,14 @@ void mainwindow_reset_paned(GtkPaned *paned)
 
 		if (gtk_paned_get_child1(GTK_PANED(paned)))
 			gtk_widget_show(gtk_paned_get_child1(GTK_PANED(paned)));
+		else
+			return;
 		if (gtk_paned_get_child2(GTK_PANED(paned)))
 			gtk_widget_show(gtk_paned_get_child2(GTK_PANED(paned)));
+		else
+			return;
+
+		gtk_paned_set_position(GTK_PANED(paned), -1);
 
 GTK_EVENTS_FLUSH();
         	g_object_get (G_OBJECT(paned),
