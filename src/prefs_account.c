@@ -1524,6 +1524,11 @@ static void basic_create_widget_func(PrefsPage * _page,
 		buf = g_strdup_printf(_("Account%d"), ac_prefs->account_id);
 		gtk_entry_set_text(GTK_ENTRY(basic_page.acname_entry), buf);
 		g_free(buf);
+
+		buf = g_locale_to_utf8(g_get_real_name(), -1, NULL, NULL, NULL);
+		if (buf && g_strcmp0(buf, "Unknown"))
+			gtk_entry_set_text(GTK_ENTRY(basic_page.name_entry), buf);
+		g_free(buf);
 	} else {
 		prefs_set_dialog(basic_param);
 
