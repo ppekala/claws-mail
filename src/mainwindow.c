@@ -2686,6 +2686,7 @@ GTK_EVENTS_FLUSH();
         	g_object_get (G_OBJECT(paned),
                         	"max-position",
                         	&max, NULL);
+		if (max == 1) return;
 		mid = (min+max)/2;
 		gtk_paned_set_position(GTK_PANED(paned), mid);
 }
